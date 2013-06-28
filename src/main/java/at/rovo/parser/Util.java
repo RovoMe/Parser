@@ -2,6 +2,7 @@ package at.rovo.parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import at.rovo.stemmer.PorterStemmer;
 
 public class Util
 {
@@ -155,5 +156,35 @@ public class Util
 		}
 
 		return builder.toString();
+	}
+	
+	/**
+	 * <p>Formats text removing certain characters or symbols</p>
+	 * <p>Stemming is applied here:</p>
+	 * <ul>
+	 *   <li>Porter's stemming algorithm is applied to non-numeric words</li>
+	 *   <li>Numeric words (numbers) are stemmed to 1</li>
+	 * </ul>
+	 * 
+	 * @param text Text which should get formated
+	 * @return the formated text
+	 */
+	public static String formatText(String text)
+	{
+		// leave URLs as they are
+		if (text.startsWith("http://"))
+			return text;
+		// remove - sign in front of numbers and stem the word to 1
+		text = text.replaceAll("^-?\\d+([.|,]\\d+)?", "1");
+		// remove HTML encodings
+		text = text.replaceAll("&#.+?;", "");
+		text = text.replaceAll("&.+?;", "");
+		// remove multiplicity
+		text = text.replaceAll("'s", "");
+		// replace all non-word characters
+		text = text.replaceAll("[^a-zA-Z0-9\\-]", "");
+		// Apply Porter's stemming algorithm
+		text = PorterStemmer.stem(text.trim());
+		return text;
 	}
 }

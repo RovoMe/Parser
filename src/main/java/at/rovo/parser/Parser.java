@@ -8,8 +8,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import at.rovo.UrlReader;
-import at.rovo.stemmer.PorterStemmer;
-
 
 /**
  * <p>A parser analyzes text and does something with the provided text. This class
@@ -25,7 +23,7 @@ public class Parser
 	
 	/** Specifies if the erased tags should be removed completely or just the 
 	 * content of those tags**/
-	protected boolean cleanFully = false;
+	protected boolean cleanFully = false; // TODO: currently everything is cleaned fully
 	/** Specifies if words inside a tag should be combined into a single 
 	 * word-segment **/
 	protected boolean combineWords = false;
@@ -483,7 +481,7 @@ public class Parser
 				if (text.charAt(i) == c)
 				{
 					if (!sb.toString().trim().equals(""))
-						this.processTokens2(sb.toString(), tokenList, stack, formatText);
+						this.processTokens(sb.toString(), tokenList, stack, formatText);
 					sb = new StringBuilder();
 					found = true;
 					break;
@@ -498,7 +496,7 @@ public class Parser
 				if (text.charAt(i) == c)
 				{
 					if (!sb.toString().trim().equals(""))
-						this.processTokens2(sb.toString(), tokenList, stack, formatText);
+						this.processTokens(sb.toString(), tokenList, stack, formatText);
 					sb = new StringBuilder();
 				}
 			}
@@ -520,7 +518,7 @@ public class Parser
 				if (text.charAt(i) == c)
 				{
 					if (!sb.toString().trim().equals(""))
-						this.processTokens2(sb.toString(), tokenList, stack, formatText);
+						this.processTokens(sb.toString(), tokenList, stack, formatText);
 					sb = new StringBuilder();
 					found = true;
 					break;
@@ -545,7 +543,7 @@ public class Parser
 	 *              HTML node
 	 * @param formatText Indicates if the output tokens should be formated
 	 */
-	protected void processTokens2(String token, List<Token> tokenList, Stack<Tag> stack, boolean formatText)
+	protected void processTokens(String token, List<Token> tokenList, Stack<Tag> stack, boolean formatText)
 	{
 		// remove whitespace characters
 		token = token.trim();
@@ -790,7 +788,7 @@ public class Parser
 		int numWords = 0;
 		
 		if (formatText)
-			word = formatText(word);
+			word = Util.formatText(word);
 		
 		// split words in case they contain a / or a - but are no URL
 		if ((word.contains("/") && !word.startsWith("http://")) 
@@ -943,37 +941,7 @@ public class Parser
 			logger.warn("Ignoring "+node.getNo()+" "+node.getName());
 		return true;
 	}
-	
-	/**
-	 * <p>Formats text removing certain characters or symbols</p>
-	 * <p>Stemming is applied here:</p>
-	 * <ul>
-	 *   <li>Porter's stemming algorithm is applied to non-numeric words</li>
-	 *   <li>Numeric words (numbers) are stemmed to 1</li>
-	 * </ul>
-	 * 
-	 * @param text Text which should get formated
-	 * @return the formated text
-	 */
-	public static String formatText(String text)
-	{
-		// leave URLs as they are
-		if (text.startsWith("http://"))
-			return text;
-		// remove - sign in front of numbers and stem the word to 1
-		text = text.replaceAll("^-?\\d+([.|,]\\d+)?", "1");
-		// remove HTML encodings
-		text = text.replaceAll("&#.+?;", "");
-		text = text.replaceAll("&.+?;", "");
-		// remove multiplicity
-		text = text.replaceAll("'s", "");
-		// replace all non-word characters
-		text = text.replaceAll("[^a-zA-Z0-9\\-]", "");
-		// Apply Porter's stemming algorithm
-		text = PorterStemmer.stem(text.trim());
-		return text;
-	}
-			
+				
 	/**
 	 * <p>Checks if a tag needs to be removed.</p>
 	 * 
@@ -982,6 +950,7 @@ public class Parser
 	 */
 	private boolean needsRemoval(Tag tag)
 	{
+		// TODO: better extensibility mechanism wanted
 		if (this.cleanComments && tag.isComment() ||
 				this.cleanDoctypes && tag.getShortTag().toLowerCase().equals("!doctype") ||
 				this.cleanMeta && tag.getShortTag().toLowerCase().equals("meta") ||
