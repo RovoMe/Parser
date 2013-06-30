@@ -36,8 +36,11 @@ http://logging.apache.org/log4j/2.x/manual/layouts.html
   </appenders>
   
   <loggers>	
+  	<logger name="at.rovo.parser.SimpleTreeParser" level="debug" additivity="true">
+  	  <appender-ref ref="TestFile"/>
+  	</logger>
   	<logger name="at.rovo.parser.Parser" level="debug" additivity="true">
-  	  <appender-ref ref="ExtractorFile"/>
+  	  <appender-ref ref="TestFile"/>
   	</logger>
 	<logger name="at.rovo.test" level="debug" additivity="false">
 	  <appender-ref ref="TestFile"/>

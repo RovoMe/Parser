@@ -10,9 +10,18 @@ import org.apache.logging.log4j.Logger;
 import at.rovo.UrlReader;
 
 /**
- * <p>A parser analyzes text and does something with the provided text. This class
- * divides a provided {@link String} into {@link Token}s - namely {@link Tag}s and 
+ * <p>A parser reads a HTML page or its text representation as {@link String}
+ * into memory and splits the text into {@link Token}s - namely {@link Tag}s and 
  * {@link Word}s.</p>
+ * <p>The tokens are stored within a {@link List} without adding any ancestor
+ * information. The respective fields of the {@link Tag} instances are 
+ * initialized with 0 therefore.</p>
+ * <p>The parser allows omitting specified HTML tags through invocation of the
+ * according clean method. Cleaning a HTML tag removes the tag as well as the 
+ * content between the opening and closing tag, which might include further 
+ * HTML tags.</p>
+ * <p>Words can be combined to a single word token by invoking 
+ * {@link #combineWords(boolean)} with a true parameter.</p>
  * 
  * @author Roman Vottner
  */
@@ -29,10 +38,6 @@ public class Parser
 	protected boolean combineWords = false;
 	/** Tags that collect everything between opening and closing tags **/
 	protected List<String> compactTags = new ArrayList<String>();
-	/** Tags contained in this list will ignore parenting. This means that tags
-	 * following one of these tags will be on the same tree-level like the tag
-	 * contained in this list **/
-	protected List<String> ignoreParentingTags = new ArrayList<String>();
 	
 	/** If set to true will result in META tags to be removed from the token 
 	 * list **/
@@ -63,20 +68,19 @@ public class Parser
 	private boolean cleanDoctypes = true;
 	
 	// Fields required during tag processing
+	/** The last HTML tag found **/
+	private Tag tag = null;
 	
 	/** The last word added to the tokenList **/
 	protected Word lastWord = null;
-	/** The last HTML tag found **/
-	protected Tag tag = null;
-	/** The position of the token **/
-	protected int tokenPos = 0;
+	/** The tag's short name which is currently compacted; null if no compaction 
+	 * is carried out at the moment **/
+	private String compact = null;
+
 	/** The ID of the token **/
 	protected int id = 0;
 	/** The number of words found **/
 	protected int numWords = 0;
-	/** The tag's short name which is currently compacted; null if no compaction 
-	 * is carried out at the moment **/
-	protected String compact = null;
 	/** Meta-data informations **/
 	protected ParsingMetaData metaData = new ParsingMetaData();
 	/** Flag which indicates if a preceding tag was parsed completely or if it
@@ -100,15 +104,6 @@ public class Parser
 			this.compactTags.add("style");
 		if (this.cleanAnchors)
 			this.compactTags.add("a");
-		
-		// single line tags
-		this.ignoreParentingTags.add("hr");
-		this.ignoreParentingTags.add("br");
-		this.ignoreParentingTags.add("meta");
-		this.ignoreParentingTags.add("link");
-		this.ignoreParentingTags.add("img");
-		this.ignoreParentingTags.add("!doctype");
-		this.ignoreParentingTags.add("input");
 	}
 	
 	/**
@@ -308,30 +303,7 @@ public class Parser
 	 *         otherwise
 	 */
 	public boolean cleanDoctypes() { return this.cleanDoctypes; }
-	
-	/**
-	 * <p>Add a tag which ignores parenting. This means the proximating tag will
-	 * be on the same tree level like this tag.</p>
-	 * 
-	 * @param tagName The tag name which should ignore parenting
-	 */
-	public void addTagToIgnoreForParenting(String tagName)
-	{
-		if (!this.ignoreParentingTags.contains(tagName))
-			this.ignoreParentingTags.add(tagName);
-	}
-	
-	/**
-	 * <p>Removes a tag from the list of tags that ignore parenting.</p>
-	 * 
-	 * @param tagName The tag to remove from the list to ignore parenting
-	 */
-	public void removeTagToIgnoreForParenting(String tagName)
-	{
-		if (this.ignoreParentingTags.contains(tagName))
-			this.ignoreParentingTags.remove(tagName);
-	}
-	
+		
 	/**
 	 * <p>Specifies if tags should be removed completely or only their contend.</p>
 	 * 
@@ -539,8 +511,7 @@ public class Parser
 	 * @param token The current token that needs to be processed
 	 * @param tokenList The list of parsed HTML tags and words contained in the
 	 *                  HTML page that is currently parsed
-	 * @param stack The stack that keeps track of the ancestors of a certain 
-	 *              HTML node
+	 * @param stack This method will ignore the stack
 	 * @param formatText Indicates if the output tokens should be formated
 	 */
 	protected void processTokens(String token, List<Token> tokenList, Stack<Tag> stack, boolean formatText)
@@ -632,103 +603,23 @@ public class Parser
 	}
 	
 	/**
-	 * <p>Creates a new HTML tag and keeps track of ancestor information as well
-	 * as the indentation level of the current token.</p>
+	 * <p>Creates a new HTML tag.</p>
 	 * 
 	 * @param token The HTML text of the tag to create
 	 * @param tokenList The list of already parsed HTML tokens
-	 * @param stack The stack that keeps track of the ancestors of a certain 
-	 *              HTML node
+	 * @param stack This method will ignore the stack
 	 * @return The newly created HTML tag
 	 */
 	protected Tag createNewTag(String token, List<Token> tokenList, Stack<Tag> stack)
 	{
-		Tag tag;
-		
-		int parent;
 		// identify the tag name
 		String tagName = this.getTagName(token);
 		
-		// detect the id of the parent and the position in the tree-
-		// hierarchy so we can initialize the new Tag appropriately
-		if (!stack.isEmpty() && stack.peek() != null)
-		{
-			parent = stack.peek().getNo();
-			int level = stack.size()-1;
-			if (tagName.startsWith("</"))
-			{
-				// closing tag found so go back one step in the tree
-				// (closing tags are on the same level as opening tags)
-				level--;
-				parent = tokenList.get(parent).getParentNo();
-			}
-			
-			if (logger.isDebugEnabled())
-			{
-				StringBuilder builder = new StringBuilder();
-				for (int _i=0; _i<level; _i++)
-					builder.append("\t");
-				logger.debug(builder.toString()+tagName+" id: "+this.id+" parent: "+parent);
-			}
-			
-			// initialize the new tag
-			if (stack.peek().getChildren() != null)
-				tag = new Tag(this.id++, tagName, parent, stack.peek().getChildren().length, level);
-			else
-				tag = new Tag(this.id++, tagName, parent, 0, level);
-		}
-		else
-		{
-			// initial tag found!
-			tag = new Tag(this.id++, tagName, 0, 0, 0);
-			parent = 0;
-		}
+		// create the new tag
+		Tag tag = new Tag(this.id++, tagName, 0, 0, 0);
 		tag.setHTML(token);
 		
-		// build the ancestor tree
-		this.addAncestorInformation(tag, tokenList, stack, parent);
-		
 		return tag;
-	}
-
-	/**
-	 * <p>Adds ancestor information to <em>tag</em> and adds the tag as a child
-	 * to it's parent.</p>
-	 * 
-	 * @param tag The tag to build the ancestor information for
-	 * @param tokenList The list of already parsed HTML tokens
-	 * @param stack The stack that keeps track of the ancestors of a certain 
-	 *              HTML node
-	 * @param parent The ID of the parent of <em>tag</em>
-	 */
-	protected void addAncestorInformation(Tag tag, List<Token> tokenList, Stack<Tag> stack, int parent)
-	{
-		boolean addTag = true;
-		// check end tags for a corresponding opening tag on the stack
-		// if none could be found the tag will not be added to the tokenList
-		if ((!tag.isOpeningTag() && !tag.isInlineCloseingTag()) && !stack.isEmpty())
-		{
-			stack.peek().setEndNo(this.id-1);
-			if (!this.ignoreParentingTags.contains(tag.getShortTag().toLowerCase()))
-			if (this.checkElementsOnStack(tag, stack, tokenList))
-			{
-				this.id--;
-				addTag = false;
-			}
-		}
-		
-		// decides if a tag should be added to the tokenList
-		if (addTag)
-		{
-			// add child to the parent
-			if (tokenList.size() > parent && !stack.isEmpty())
-				tokenList.get(parent).addChild(tag);
-			// opening tags will get added to the stack if they do not occur
-			// in the ignoreParentingTags list
-			if (tag.getHTML().startsWith("</") || tag.getHTML().endsWith("/>") 
-				|| this.ignoreParentingTags.contains(tag.getShortTag().toLowerCase()))
-				tag.setEndNo(this.id-1);				
-		}
 	}
 	
 	/**
@@ -738,8 +629,7 @@ public class Parser
 	 * @param tag The tag to check for its validity to be added to the list of
 	 *            parsed tokens
 	 * @param tokenList The list of already parsed HTML tokens
-	 * @param stack The stack that keeps track of the ancestors of a certain 
-	 *              HTML node
+	 * @param stack This method will ignore the stack
 	 */
 	protected void checkTagValidity(Tag tag, List<Token> tokenList, Stack<Tag> stack)
 	{
@@ -759,14 +649,6 @@ public class Parser
 				if (logger.isDebugEnabled())
 					logger.debug("\tadded Tag: "+tag);
 				
-				// put the tag on the stack if it does not appear within the
-				// ignoreParentingTags list and either the stack is empty or
-				// the tag is an opening tag
-				if (!this.ignoreParentingTags.contains(newTag.getShortTag().toLowerCase()) 
-						&& (stack.isEmpty() || newTag.isOpeningTag()) 
-						&& !newTag.isInlineCloseingTag())
-					stack.push(newTag);
-				
 				this.metaData.checkTag(newTag);
 			}
 		}
@@ -778,7 +660,7 @@ public class Parser
 	 * 
 	 * @param word The word to add to the list of parsed tokens
 	 * @param id The id of the word to add
-	 * @param stack The ancestors of the word
+	 * @param stack This method will ignore the stack
 	 * @param tokenList The list of parsed tokens
 	 * @param formatText Indicates if the output tokens should be formated
 	 * @return The number of words added to the list of parsed tokens
@@ -814,12 +696,12 @@ public class Parser
 	 * 
 	 * @param word The word to add
 	 * @param id The id of the word to add
-	 * @param stack The ancestors of the word
+	 * @param stack This method will ignore the stack
 	 * @param tokenList The list of parsed tokens
 	 * @return The number of words added; This is 0 if the word got appended to
 	 *         a preceding word
 	 */
-	private int addWord(String word, int id, Stack<Tag> stack, List<Token> tokenList)
+	protected int addWord(String word, int id, Stack<Tag> stack, List<Token> tokenList)
 	{
 		int ret = 0;
 		// check if this word is the first word after a HTML tag and if we should
@@ -827,66 +709,19 @@ public class Parser
 		if (!this.combineWords || (this.combineWords && 
 				(this.lastWord == null || this.lastWord.getText()==null) ))
 		{
-			// either we have a word following a HTML tag or we should not 
-			// combine words
-			int parent;
-			if (!stack.isEmpty() && stack.peek() != null)
-			{
-				// not the first element on the stack :)
-				parent = stack.peek().getNo();
-				int level = stack.size()-1;
-				if (stack.peek().getChildren() != null)
-				{
-					// there has at least been one word for the parent HTML tag
-					// before
-					if (this.lastWord == null)
-						this.lastWord = new Word(id, word, parent, stack.peek().getChildren().length, level);
-					else
-					{
-						this.lastWord.setNo(id);
-						this.lastWord.setName(word);
-						this.lastWord.setText(word);
-						this.lastWord.setLevel(level);
-						this.lastWord.setParentNo(parent);
-						this.lastWord.setSibNo(stack.peek().getChildren().length);
-					}
-				}
-				else
-				{
-					// this is the first word after a HTML tag
-					if (this.lastWord == null)
-						this.lastWord = new Word(id, word, parent, 0, level);
-					else
-					{
-						this.lastWord.setNo(id);
-						this.lastWord.setName(word);
-						this.lastWord.setText(word);
-						this.lastWord.setLevel(level);
-						this.lastWord.setParentNo(parent);
-						this.lastWord.setSibNo(0);
-					}
-				}
-			}
+			if (this.lastWord == null)
+				this.lastWord = new Word(id, word, 0, 0, 0);
 			else
 			{
-				// this is the first word on the stack!
-				parent = 0;
-				if (this.lastWord == null)
-					this.lastWord = new Word(id, word, 0, 0, 0);
-				else
-				{
-					this.lastWord.setNo(id);
-					this.lastWord.setName(word);
-					this.lastWord.setText(word);
-					this.lastWord.setLevel(0);
-					this.lastWord.setParentNo(0);
-					this.lastWord.setSibNo(0);
-				}
+				this.lastWord.setNo(id);
+				this.lastWord.setName(word);
+				this.lastWord.setText(word);
+				this.lastWord.setLevel(0);
+				this.lastWord.setParentNo(0);
+				this.lastWord.setSibNo(0);
 			}
 			
 			// add child to the parent
-			if (tokenList.size() > parent)
-				tokenList.get(parent).addChild(this.lastWord);
 			tokenList.add(this.lastWord);
 							
 			ret = 1;
@@ -903,44 +738,6 @@ public class Parser
 		
 		return ret;
 	}
-	
-	/**
-	 * <p>Checks if a HTML node has a corresponding parent on the stack. If so
-	 * nodes are taken from the stack until the parent is reached. The parent is
-	 * now the last entry on the stack.</p>
-	 * <p>If no matching parent could be found, the algorithm assumes that the
-	 * tag itself is a wild tag and should not be included in the final output,
-	 * therefore the tag is removed from the tokenList and the reference of the
-	 * parent pointing to this node is removed.</p>
-	 * 
-	 * @param node The node to check if a corresponding parent is on the stack
-	 * @param stack The stack that includes all ancestors
-	 * @param tokenList The list containing all HTML nodes
-	 * @param childEndTag Defines if the end tag is on the same level as the start 
-	 *                    tag (true) or the end tag is a child of the start tag 
-	 *                    (false)
-	 * @return Returns true if the element is a wild node and has no ancestor 
-	 *         on the stack, false otherwise
-	 */
-	protected boolean checkElementsOnStack(Tag node, Stack<Tag> stack, List<Token> tokenList)
-	{
-		// first element on the stack is the root-element
-		for (int i=stack.size()-1; i>0; i--)
-		{
-			Token curNode = stack.elementAt(i);
-			if (curNode.getName().equals(node.getName().replace("/", "")))
-			{
-				// match found
-				int numPopRequired = node.getLevel()+1 - curNode.getLevel();
-				for (int j=0; j<numPopRequired; j++)
-					stack.pop();
-				return false;
-			}
-		}
-		if (logger.isWarnEnabled())
-			logger.warn("Ignoring "+node.getNo()+" "+node.getName());
-		return true;
-	}
 				
 	/**
 	 * <p>Checks if a tag needs to be removed.</p>
@@ -948,7 +745,7 @@ public class Parser
 	 * @param tag The tag which should be checked for removal
 	 * @return True if the tag needs to be removed; false otherwise
 	 */
-	private boolean needsRemoval(Tag tag)
+	protected boolean needsRemoval(Tag tag)
 	{
 		// TODO: better extensibility mechanism wanted
 		if (this.cleanComments && tag.isComment() ||
