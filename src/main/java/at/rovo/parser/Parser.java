@@ -48,6 +48,9 @@ public class Parser
 	/** If set to true will result in SCRIPT tags to be removed from the token
 	 * list **/
 	private boolean cleanScripts = true;
+	/** If set to true will result in NOSCRIPT tags to be removed from the token
+	 * list **/
+	private boolean cleanNoScripts = true;
 	/** If set to true will result in STYLE tags to be removed from the token
 	 * list **/
 	private boolean cleanStyles = true;
@@ -81,6 +84,8 @@ public class Parser
 	protected int id = 0;
 	/** The number of words found **/
 	protected int numWords = 0;
+	/** The number of tags found **/
+	protected int tagPos = 0;
 	/** Meta-data informations **/
 	protected ParsingMetaData metaData = new ParsingMetaData();
 	/** Flag which indicates if a preceding tag was parsed completely or if it
@@ -96,6 +101,8 @@ public class Parser
 		this.compactTags.add("iframe");
 		if (this.cleanScripts)
 			this.compactTags.add("script");
+		if (this.cleanNoScripts)
+			this.compactTags.add("noscript");
 		if (this.cleanFormElements)		
 			this.compactTags.add("form");
 		if (this.cleanComments)
@@ -138,6 +145,22 @@ public class Parser
 	 *              in the result
 	 */
 	public void cleanScripts(boolean clean) 
+	{ 
+		this.cleanScripts = clean; 
+		if (clean && !this.compactTags.contains("script"))
+			this.compactTags.add("script");
+		else if (!clean)
+			this.compactTags.remove("script");
+	}
+	
+	/**
+	 * <p>Defines if a NOSCRIPT tag should be removed from the parsed token list.
+	 * </p>
+	 * 
+	 * @param clean True specifies to remove NOSCRIPT tags; false will keep them 
+	 *              in the result
+	 */
+	public void cleanNoScripts(boolean clean) 
 	{ 
 		this.cleanScripts = clean; 
 		if (clean && !this.compactTags.contains("script"))
@@ -255,6 +278,14 @@ public class Parser
 	 *         otherwise
 	 */
 	public boolean cleanScripts() { return this.cleanScripts; }
+	
+	/**
+	 * <p>Returns if NOSCRIPT tags are removed from the token list.</p>
+	 * 
+	 * @return True if NOSCRIPT tags are removed from the token list; false 
+	 *         otherwise
+	 */
+	public boolean cleanNoScripts() { return this.cleanScripts; }
 	
 	/**
 	 * <p>Returns if STYLE tags are removed from the token list.</p>
@@ -443,62 +474,79 @@ public class Parser
 		
 		StringBuilder sb = new StringBuilder();
 		boolean found = false;
+		boolean openQuotes = false;
 		for(int i=0; i < text.length(); i++)
 		{			
-			for (char c : replaceChars)
+			if (!openQuotes)
 			{
-				// we found a separating character - split the token at this 
-				// position - This token should not get included in the final
-				// token so jump continue with the next iteration
-				if (text.charAt(i) == c)
+				for (char c : replaceChars)
 				{
-					if (!sb.toString().trim().equals(""))
-						this.processTokens(sb.toString(), tokenList, stack, formatText);
-					sb = new StringBuilder();
-					found = true;
-					break;
+					// we found a separating character - split the token at this 
+					// position - This token should not get included in the final
+					// token so jump continue with the next iteration
+					if (text.charAt(i) == c)
+					{
+						if (!sb.toString().trim().equals(""))
+							this.processTokens(sb.toString(), tokenList, stack, formatText);
+						sb = new StringBuilder();
+						found = true;
+						break;
+					}
+				}
+				
+				for (char c : splitAndIncludeChars)
+				{
+					// we found a separating character - split the token at this 
+					// position and include the splitting character to the newly
+					// created token
+					if (text.charAt(i) == c)
+					{
+						if (!sb.toString().trim().equals(""))
+							this.processTokens(sb.toString(), tokenList, stack, formatText);
+						sb = new StringBuilder();
+					}
+				}
+				
+				// we have already found a replaceable char - this should not be
+				// added to the token
+				if (found)
+				{
+					found = false;
+					continue;
 				}
 			}
 			
-			for (char c : splitAndIncludeChars)
+			// catch quoted sections
+			if (text.charAt(i) == '"')
+				openQuotes = !openQuotes;
+			
+			// catch constructs like <div id="companionAd""> but allow sections
+			// like <img src="..." alt="" />
+			if (i > 3 && text.charAt(i-2) != '=' &&text.charAt(i-1) == '"' && text.charAt(i) == '"')
+				// ignore the char
+				openQuotes=false;
+			else
+				sb.append(text.charAt(i));	
+			
+			if (!openQuotes)
 			{
-				// we found a separating character - split the token at this 
-				// position and include the splitting character to the newly
-				// created token
-				if (text.charAt(i) == c)
+				for (char c : nonReplaceChars)
 				{
-					if (!sb.toString().trim().equals(""))
-						this.processTokens(sb.toString(), tokenList, stack, formatText);
-					sb = new StringBuilder();
+					// we found a separating character - split the token and add the
+					// separating character to the old token as its last character
+					if (text.charAt(i) == c)
+					{
+						if (!sb.toString().trim().equals(""))
+							this.processTokens(sb.toString(), tokenList, stack, formatText);
+						sb = new StringBuilder();
+						found = true;
+						break;
+					}
 				}
+				
+				if (found)
+					found = false;
 			}
-			
-			// we have already found a replaceable char - this should not be
-			// added to the token
-			if (found)
-			{
-				found = false;
-				continue;
-			}
-			
-			sb.append(text.charAt(i));	
-			
-			for (char c : nonReplaceChars)
-			{
-				// we found a separating character - split the token and add the
-				// separating character to the old token as its last character
-				if (text.charAt(i) == c)
-				{
-					if (!sb.toString().trim().equals(""))
-						this.processTokens(sb.toString(), tokenList, stack, formatText);
-					sb = new StringBuilder();
-					found = true;
-					break;
-				}
-			}
-			
-			if (found)
-				found = false;
 		}
 		
 		return tokenList;
@@ -531,10 +579,15 @@ public class Parser
 			{
 				if (this.tag.getShortTag().equals(compactTag))
 				{
-					if (compactTag.equals("<!--"))
+					if (compactTag.equals("<!--") && !token.endsWith("-->"))
 						this.compact = "-->";
+					// check if the found tag was provided as a one-line-tag
+					// f.e. <!--empty--> 
+					else if (compactTag.equals("<!--") && token.endsWith("-->"))
+						this.compact = null;
 					else
 						this.compact = compactTag;
+					
 					break;
 				}
 			}
@@ -548,7 +601,7 @@ public class Parser
 			// tag
 			this.tag.append(token);
 			
-			if (token.endsWith("/>"))
+			if (token.endsWith(">"))
 				this.tag.setName(this.getTagName(this.tag.getHTML()));
 			
 			this.checkTagValidity(this.tag, tokenList, stack);
@@ -609,8 +662,12 @@ public class Parser
 	 * @param tokenList The list of already parsed HTML tokens
 	 * @param stack This method will ignore the stack
 	 * @return The newly created HTML tag
+	 * @throws InvalidAncestorException Thrown by overriding methods of child
+	 *                                  classes to indicate that a closing tag
+	 *                                  has no corresponding opening tag on the
+	 *                                  stack
 	 */
-	protected Tag createNewTag(String token, List<Token> tokenList, Stack<Tag> stack)
+	protected Tag createNewTag(String token, List<Token> tokenList, Stack<Tag> stack) throws InvalidAncestorException
 	{
 		// identify the tag name
 		String tagName = this.getTagName(token);
@@ -643,13 +700,23 @@ public class Parser
 			if (!this.needsRemoval(tag))
 			{
 				// create a new tag object with ancestor and sibling informations
-				Tag newTag = this.createNewTag(tag.getHTML(), tokenList, stack);
-				tokenList.add(newTag);
-				
-				if (logger.isDebugEnabled())
-					logger.debug("\tadded Tag: "+tag);
-				
-				this.metaData.checkTag(newTag);
+				try
+				{
+					Tag newTag = this.createNewTag(tag.getHTML(), tokenList, stack);
+					tokenList.add(newTag);
+					
+					newTag.setIndex(this.tagPos++);
+					
+					if (logger.isDebugEnabled())
+						logger.debug("\tadded Tag: "+tag);
+					
+					this.metaData.checkTag(newTag);
+				}
+				catch (InvalidAncestorException iaEx)
+				{
+					if (logger.isWarnEnabled())
+						logger.warn(iaEx.getMessage());
+				}
 			}
 		}
 	}
@@ -673,20 +740,20 @@ public class Parser
 			word = Util.formatText(word);
 		
 		// split words in case they contain a / or a - but are no URL
-		if ((word.contains("/") && !word.startsWith("http://")) 
-				|| word.contains("-"))
-		{
-			for (String w : word.split("[/|-]"))
-			{
-				numWords += this.addWord(w, id++,  stack,  tokenList);
-			}
-		}
-		else
+//		if ((word.contains("/") && !word.startsWith("http://")) 
+//				|| word.contains("-"))
+//		{
+//			for (String w : word.split("[/|-]"))
+//			{
+//				numWords += this.addWord(w, id++,  stack,  tokenList);
+//			}
+//		}
+//		else
 		{
 			// only a single word to add
 			numWords += this.addWord(word, id,  stack,  tokenList);
 		}
-
+		
 		return numWords;
 	}
 	
@@ -710,7 +777,10 @@ public class Parser
 				(this.lastWord == null || this.lastWord.getText()==null) ))
 		{
 			if (this.lastWord == null)
+			{
 				this.lastWord = new Word(id, word, 0, 0, 0);
+				this.lastWord.setText(word);
+			}
 			else
 			{
 				this.lastWord.setNo(id);
@@ -752,6 +822,7 @@ public class Parser
 				this.cleanDoctypes && tag.getShortTag().toLowerCase().equals("!doctype") ||
 				this.cleanMeta && tag.getShortTag().toLowerCase().equals("meta") ||
 				this.cleanScripts && tag.getShortTag().toLowerCase().equals("script") ||
+				this.cleanNoScripts && tag.getShortTag().toLowerCase().equals("noscript") ||
 				this.cleanLinks  && tag.getShortTag().toLowerCase().equals("link") ||
 				this.cleanStyles && tag.getShortTag().toLowerCase().equals("style") ||
 				this.cleanFormElements && tag.getShortTag().equals("form") ||

@@ -115,49 +115,49 @@ public class ParsingMetaData
 			isAuthor = false;
 	}
 	
-	public void checkTag(Tag tag, String token)
-	{
-		
-		if (tag.getHTML().contains("date") && tag.isOpeningTag())
-		{
-			isDate = true;
-			foundLevel = tag.getLevel();
-		}
-		else if (isDate)
-			isDate = false;
-			
-		if (tag.getHTML().contains("\"authorName\"") && tag.isOpeningTag())
-		{
-			foundLevel = tag.getLevel();
-			authorName.add("");
-			isAuthorName = true;
-		}
-		else if (isAuthorName)
-			isAuthorName = false;
-		else if (tag.getHTML().contains("\"author\"") && tag.isOpeningTag())
-		{
-			foundLevel = tag.getLevel();
-			authors.add("");
-			isAuthor = true;
-		}
-		else if (isAuthor)
-			isAuthor = false;
-			
-		if (tag.getHTML().contains("byline") && tag.isOpeningTag())
-		{
-			isByline = true;
-			foundLevel = tag.getLevel();
-		}
-		else if (isByline)
-		{
-			byline += tag.getHTML();
-			if (tag.getShortTag().equals(bylineTag))
-				isByline = false;
-		}
-			
-		if (tag.getHTML().equals("</title>"))
-			isTitle = false;
-	}
+//	public void checkTag(Tag tag, String token)
+//	{
+//		
+//		if (tag.getHTML().contains("date") && tag.isOpeningTag())
+//		{
+//			isDate = true;
+//			foundLevel = tag.getLevel();
+//		}
+//		else if (isDate)
+//			isDate = false;
+//			
+//		if (tag.getHTML().contains("\"authorName\"") && tag.isOpeningTag())
+//		{
+//			foundLevel = tag.getLevel();
+//			authorName.add("");
+//			isAuthorName = true;
+//		}
+//		else if (isAuthorName)
+//			isAuthorName = false;
+//		else if (tag.getHTML().contains("\"author\"") && tag.isOpeningTag())
+//		{
+//			foundLevel = tag.getLevel();
+//			authors.add("");
+//			isAuthor = true;
+//		}
+//		else if (isAuthor)
+//			isAuthor = false;
+//			
+//		if (tag.getHTML().contains("byline") && tag.isOpeningTag())
+//		{
+//			isByline = true;
+//			foundLevel = tag.getLevel();
+//		}
+//		else if (isByline)
+//		{
+//			byline += tag.getHTML();
+//			if (tag.getShortTag().equals(bylineTag))
+//				isByline = false;
+//		}
+//			
+//		if (tag.getHTML().equals("</title>"))
+//			isTitle = false;
+//	}
 	
 	public void checkToken(Word word, boolean combineWords)
 	{

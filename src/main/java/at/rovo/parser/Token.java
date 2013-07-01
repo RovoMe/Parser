@@ -57,21 +57,20 @@ public abstract class Token
 	protected LinkedList<int[][]> comparedMatrixes = new LinkedList<int[][]>();
 		
 	/**
-	 * <p>Initializes objects of subclasses and 
-	 * sets the text of this token.</p>
+	 * <p>Initializes objects of subclasses and sets the text of this token.</p>
 	 * 
 	 * @param text Text of this token
 	 */
-	public Token(String text)
+	public Token(String html)
 	{
-		this.text = text;
+		this.html = html;
 	}
 	
-	public Token(int no, String name, String text, int level, int parentNo, int sibNo)
+	public Token(int no, String name, String html, int level, int parentNo, int sibNo)
 	{
 		this.no = no;
 		this.name = name;
-		this.text = text;
+		this.html = html;
 		this.level = level;
 		this.parentNo = parentNo;
 		this.sibNo = sibNo;
@@ -151,8 +150,7 @@ public abstract class Token
 	
 	public void addChild(Token node)
 	{
-//		if (!this.children.contains(node))
-			this.children.add(node);
+		this.children.add(node);
 	}
 	
 	public void removeChild(Token node)
@@ -192,32 +190,27 @@ public abstract class Token
 	
 	public String getSubtreeAnchorText() 
 	{ 
-//		if (this.subtreeText == null)
-//		{
-			StringBuilder builder = new StringBuilder();
-			
-			for (Token child : this.children)
+		StringBuilder builder = new StringBuilder();
+		
+		for (Token child : this.children)
+		{
+			if (this.name.equals("<a>") && child.getText() != null && !child.getText().equals(""))
 			{
-				if (this.name.equals("<a>") && child.getText() != null && !child.getText().equals(""))
+				builder.append(child.getText().trim());
+				builder.append(" ");
+			}
+			else
+			{	
+				String subTree = child.getSubtreeAnchorText().trim();
+				if (!subTree.equals(""))
 				{
-					builder.append(child.getText().trim());
+					builder.append(subTree);
 					builder.append(" ");
 				}
-				else
-				{	
-					String subTree = child.getSubtreeAnchorText().trim();
-					if (!subTree.equals(""))
-					{
-						builder.append(subTree);
-						builder.append(" ");
-					}
-				}
 			}
-			
-			return builder.toString().trim();
-//			this.subtreeText = builder.toString().trim();
-//		}
-//		return this.subtreeText; 
+		}
+		
+		return builder.toString().trim();
 	}
 	
 	public double getAnchorTextRatio() 
@@ -266,13 +259,7 @@ public abstract class Token
 			this.comparedNodes.add(node);
 	}
 	public void setComparedNodes(LinkedList<Token> comparedNodes) { this.comparedNodes = comparedNodes; }
-	
-//	@Override
-//	public String toString()
-//	{
-//		return this.no+" "+this.name+ (this.children == null || this.children.isEmpty() ? "" : " children: "+this.children);
-//	}
-	
+		
 	@Override
 	public int hashCode()
 	{
@@ -341,7 +328,7 @@ public abstract class Token
 	@Override
 	public String toString() 
 	{ 
-		if (this.text!= null) 
+		if (this.text != null && !this.text.equals("")) 
 			return this.text;
 		else
 			return this.name;

@@ -1,5 +1,8 @@
 package at.rovo.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * <p>Represents a HTML or XML tag which starts with a '&lt;' character
  * and ends with a '>' character.</p>
@@ -11,6 +14,8 @@ package at.rovo.parser;
  */
 public class Tag extends Token
 {
+	private List<Token> appendedTokens = new ArrayList<Token>(); 
+	
 	/**
 	 * <p>Initializes a new instance of a HTML tag.
 	 * The parameter is the full content of this tag.
@@ -28,7 +33,6 @@ public class Tag extends Token
 	public Tag(String text)
 	{
 		super(text);
-		this.html = text;
 	}
 	
 	public Tag(int id, String name, int parent, int numSiblings, int level)
@@ -73,11 +77,31 @@ public class Tag extends Token
 	 *             parts of the tag and not outside!
 	 * @return The current content of the tag
 	 */
-	public String append(String text)
+	String append(String text)
 	{
 		if (!this.isValid())
 			this.html = this.html+" "+text;
 		return this.html;
+	}
+	
+	/**
+	 * <p>Adds a token as a sub element to this tag.</p>
+	 * 
+	 * @param token The token to add as a sub element to this tag
+	 */
+	public void append(Token token)
+	{
+		this.appendedTokens.add(token);
+	}
+	
+	/**
+	 * <p>Returns all sub elements for this tag.</p>
+	 * 
+	 * @return The sub elements for this tag
+	 */
+	public List<Token> getSubElements()
+	{
+		return this.appendedTokens;
 	}
 	
 	/**

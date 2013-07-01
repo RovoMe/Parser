@@ -3,7 +3,6 @@ package at.rovo.parser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -53,6 +52,8 @@ public class SimpleTreeParser extends Parser
 		this.ignoreIndentationTags.add("img");
 		this.ignoreIndentationTags.add("!doctype");
 		this.ignoreIndentationTags.add("input");
+		this.ignoreIndentationTags.add("script");
+		this.ignoreIndentationTags.add("noscript");
 	}
 	
 	/**
@@ -87,9 +88,11 @@ public class SimpleTreeParser extends Parser
 	 * @param stack The stack that keeps track of the ancestors of a certain 
 	 *              HTML node
 	 * @return The newly created HTML tag
+	 * @throws InvalidAncestorException If no matching opening tag can be found
+	 *                                  on the stack for a closing tag
 	 */
 	@Override
-	protected Tag createNewTag(String token, List<Token> tokenList, Stack<Tag> stack)
+	protected Tag createNewTag(String token, List<Token> tokenList, Stack<Tag> stack) throws InvalidAncestorException
 	{
 		Tag tag;
 		
@@ -110,15 +113,7 @@ public class SimpleTreeParser extends Parser
 				level--;
 				parent = tokenList.get(parent).getParentNo();
 			}
-			
-			if (logger.isDebugEnabled())
-			{
-				StringBuilder builder = new StringBuilder();
-				for (int _i=0; _i<level; _i++)
-					builder.append("\t");
-				logger.debug(builder.toString()+tagName+" id: "+this.id+" parent: "+parent);
-			}
-			
+						
 			// initialize the new tag
 			if (stack.peek().getChildren() != null)
 				tag = new Tag(this.id++, tagName, parent, stack.peek().getChildren().length, level);
@@ -148,35 +143,34 @@ public class SimpleTreeParser extends Parser
 	 * @param stack The stack that keeps track of the ancestors of a certain 
 	 *              HTML node
 	 * @param parent The ID of the parent of <em>tag</em>
+	 * @throws InvalidAncestorException If a closing tag has no corresponding 
+	 *                                  opening tag on the stack
 	 */
-	protected void addAncestorInformation(Tag tag, List<Token> tokenList, Stack<Tag> stack, int parent)
+	protected void addAncestorInformation(Tag tag, List<Token> tokenList, Stack<Tag> stack, int parent) throws InvalidAncestorException
 	{
-		boolean addTag = true;
 		// check end tags for a corresponding opening tag on the stack
 		// if none could be found the tag will not be added to the tokenList
 		if ((!tag.isOpeningTag() && !tag.isInlineCloseingTag()) && !stack.isEmpty())
 		{
 			stack.peek().setEndNo(this.id-1);
 			if (!this.ignoreIndentationTags.contains(tag.getShortTag().toLowerCase()))
-			if (this.checkElementsOnStack(tag, stack, tokenList))
 			{
-				this.id--;
-				addTag = false;
+				if (this.checkElementsOnStack(tag, stack, tokenList))
+				{
+					this.id--;
+					throw new InvalidAncestorException("No matching opening tag for "+tag.getName()+" found!");
+				}
 			}
 		}
-		
-		// decides if a tag should be added to the tokenList
-		if (addTag)
-		{
-			// add child to the parent
-			if (tokenList.size() > parent && !stack.isEmpty())
-				tokenList.get(parent).addChild(tag);
-			// opening tags will get added to the stack if they do not occur
-			// in the ignoreParentingTags list
-			if (tag.getHTML().startsWith("</") || tag.getHTML().endsWith("/>") 
-				|| this.ignoreIndentationTags.contains(tag.getShortTag().toLowerCase()))
-				tag.setEndNo(this.id-1);				
-		}
+
+		// add child to the parent
+		if (tokenList.size() > parent && !stack.isEmpty())
+			tokenList.get(parent).addChild(tag);
+		// opening tags will get added to the stack if they do not occur
+		// in the ignoreParentingTags list
+		if (tag.getHTML().startsWith("</") || tag.getHTML().endsWith("/>") 
+			|| this.ignoreIndentationTags.contains(tag.getShortTag().toLowerCase()))
+			tag.setEndNo(this.id-1);				
 	}
 	
 	/**
@@ -201,22 +195,35 @@ public class SimpleTreeParser extends Parser
 			// check if we are allowed to add the tag
 			if (!this.needsRemoval(tag))
 			{
-				// create a new tag object with ancestor and sibling informations
-				Tag newTag = this.createNewTag(tag.getHTML(), tokenList, stack);
-				tokenList.add(newTag);
-				
-//				if (logger.isDebugEnabled())
-//					logger.debug("\tadded Tag: "+tag);
-				
-				// put the tag on the stack if it does not appear within the
-				// ignoreParentingTags list and either the stack is empty or
-				// the tag is an opening tag
-				if (!this.ignoreIndentationTags.contains(newTag.getShortTag().toLowerCase()) 
-						&& (stack.isEmpty() || newTag.isOpeningTag()) 
-						&& !newTag.isInlineCloseingTag())
-					stack.push(newTag);
-				
-				this.metaData.checkTag(newTag);
+				try
+				{
+					// create a new tag object with ancestor and sibling informations
+					Tag newTag = this.createNewTag(tag.getHTML(), tokenList, stack);
+					tokenList.add(newTag);
+					
+					if (logger.isDebugEnabled())
+					{
+						StringBuilder builder = new StringBuilder();
+						for (int i=0; i<newTag.getLevel(); i++)
+							builder.append("\t");
+						logger.debug(builder.toString()+newTag.getName()+" id: "+newTag.getNo()+" parent: "+newTag.getParentNo()+" html: \t\t"+newTag.getHTML());
+					}
+					
+					// put the tag on the stack if it does not appear within the
+					// ignoreParentingTags list and either the stack is empty or
+					// the tag is an opening tag
+					if (!this.ignoreIndentationTags.contains(newTag.getShortTag().toLowerCase()) 
+							&& (stack.isEmpty() || newTag.isOpeningTag()) 
+							&& !newTag.isInlineCloseingTag())
+						stack.push(newTag);
+					
+					this.metaData.checkTag(newTag);
+				}
+				catch (InvalidAncestorException iaEx)
+				{
+					if (logger.isWarnEnabled())
+						logger.warn(iaEx.getMessage());
+				}
 			}
 		}
 	}
@@ -253,49 +260,19 @@ public class SimpleTreeParser extends Parser
 				{
 					// there has at least been one word for the parent HTML tag
 					// before
-					if (this.lastWord == null)
-						this.lastWord = new Word(id, word, parent, stack.peek().getChildren().length, level);
-					else
-					{
-						this.lastWord.setNo(id);
-						this.lastWord.setName(word);
-						this.lastWord.setText(word);
-						this.lastWord.setLevel(level);
-						this.lastWord.setParentNo(parent);
-						this.lastWord.setSibNo(stack.peek().getChildren().length);
-					}
+					this.newWord(id, word, parent, stack.peek().getChildren().length, level);
 				}
 				else
 				{
 					// this is the first word after a HTML tag
-					if (this.lastWord == null)
-						this.lastWord = new Word(id, word, parent, 0, level);
-					else
-					{
-						this.lastWord.setNo(id);
-						this.lastWord.setName(word);
-						this.lastWord.setText(word);
-						this.lastWord.setLevel(level);
-						this.lastWord.setParentNo(parent);
-						this.lastWord.setSibNo(0);
-					}
+					this.newWord(id, word, parent, 0, level);
 				}
 			}
 			else
 			{
 				// this is the first word on the stack!
 				parent = 0;
-				if (this.lastWord == null)
-					this.lastWord = new Word(id, word, 0, 0, 0);
-				else
-				{
-					this.lastWord.setNo(id);
-					this.lastWord.setName(word);
-					this.lastWord.setText(word);
-					this.lastWord.setLevel(0);
-					this.lastWord.setParentNo(0);
-					this.lastWord.setSibNo(0);
-				}
+				this.newWord(id, word, 0, 0, 0);
 			}
 			
 			// add child to the parent
@@ -316,6 +293,32 @@ public class SimpleTreeParser extends Parser
 		this.lastWord.setName(this.lastWord.getText());
 		
 		return ret;
+	}
+	
+	/**
+	 * <p>Creates a new word or updates a word from a previous iteration.</p>
+	 * 
+	 * @param word The word to add
+	 * @param parent The parent HTML element of this word
+	 * @param sibling The position of this word amongst its siblings
+	 * @param level The level of this word
+	 */
+	protected void newWord(int id, String word, int parent, int sibling, int level)
+	{
+		if (this.lastWord == null)
+		{
+			this.lastWord = new Word(id, word, parent, sibling, level);
+			this.lastWord.setText(word);
+		}
+		else
+		{
+			this.lastWord.setNo(id);
+			this.lastWord.setName(word);
+			this.lastWord.setText(word);
+			this.lastWord.setLevel(level);
+			this.lastWord.setParentNo(parent);
+			this.lastWord.setSibNo(sibling);
+		}
 	}
 	
 	/**

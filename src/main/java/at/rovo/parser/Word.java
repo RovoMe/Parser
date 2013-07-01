@@ -73,7 +73,7 @@ public class Word extends Token
 		{
 			return false;
 		}
-
+		
 		if (!(this.text.equalsIgnoreCase(word.text)))
 		{
 			return false;

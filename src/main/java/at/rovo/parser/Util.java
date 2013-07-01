@@ -159,6 +159,50 @@ public class Util
 	}
 	
 	/**
+	 * <p>Returns the node and all of its child nodes in a TSReC structure 
+	 * which can be used to inspect the correctness of the parser.</p>
+	 * 
+	 * @param node The parsed tag sequence
+	 * @return A representation of the HTML page as TSReC structure
+	 */
+	public static String niceTSReCFormat(List<Token> nodes)
+	{
+		StringBuilder builder = new StringBuilder();		
+		for (Token node : nodes)
+		{
+			if (node instanceof Tag)
+			{
+				Tag tag = (Tag)node;
+				
+				if (!tag.isOpeningTag())
+					continue;
+				
+				// print the TSReC
+				builder.append(tag.getName() + " (" + tag.getNo() + ", "
+						+ tag.getEndNo() + ", " + tag.getParentNo() + ", "
+						+ tag.getLevel() + ") : ");
+				
+				for (Token n : tag.getSubElements())
+				{
+					if (n.getText() != null)
+					{
+						// print the content of words
+						builder.append(n.getText());
+					}
+					else
+					{
+						// print the content of tags
+						builder.append(n.getName());
+					}
+				}
+				builder.append("\n");
+			}
+		}
+		
+		return builder.toString();
+	}
+	
+	/**
 	 * <p>Formats text removing certain characters or symbols</p>
 	 * <p>Stemming is applied here:</p>
 	 * <ul>
