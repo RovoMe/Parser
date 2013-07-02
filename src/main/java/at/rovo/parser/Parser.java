@@ -20,6 +20,8 @@ import at.rovo.UrlReader;
  * HTML tags.</p>
  * <p>Words can be combined to a single word token by invoking 
  * {@link #combineWords(boolean)} with a true parameter.</p>
+ * <p>By default IFrame-, Script-, NoScript-, Link-, Style-, Form-, Doctype-Tags 
+ * and Comments are removed.</p>
  * 
  * @author Roman Vottner
  */

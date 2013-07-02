@@ -1,5 +1,6 @@
 package at.rovo.parser;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
@@ -30,6 +31,46 @@ public class DOMParser extends SimpleTreeParser
 	}
 	
 	/**
+	 * <p>Builds a DOM tree from the HTML text provided as input.</p>
+	 *  
+	 * @param html A {@link String} representing the full HTML code of a
+	 *             web site
+	 * @param formatText Indicates if the tokens should be formated or not
+	 * @return A {@link List} containing the root element of the HTML page
+	 */
+	@Override
+	public ParseResult tokenize(String html, boolean formatText)
+	{
+		ParseResult result = new ParseResult();
+		if (html == null || html.equals(""))
+			throw new IllegalArgumentException("Invalid html string passed.");
+				
+		// split the html into a token-array
+		if (logger.isDebugEnabled())
+			logger.debug("Splitting page");
+		
+ 		// parse and process the tokens from the HTML file 			 		
+ 		List<Token> tokenList = this.parseToTokens(html, " ", ">", "<", formatText);
+		
+ 		// only return the root element
+ 		List<Token> ret = new ArrayList<Token>();
+ 		ret.add(tokenList.get(0));
+ 		
+ 		// generate the result
+		result.setTitle(metaData.getTitle());
+		result.setParsedTokens(ret);
+		result.setAuthorName(metaData.getAuthorNames());
+		result.setAuthors(metaData.getAuthor());
+		result.setPublishDate(metaData.getDate());
+		result.setByline(metaData.getByline());
+		result.setNumWords(numWords);
+		result.setNumTokens(tokenList.size());
+		result.setNumTags(id);
+		
+		return result;
+	}
+	
+	/**
 	 * <p>Adds ancestor information to <em>tag</em> and adds the tag as a child
 	 * to it's parent.</p>
 	 * 
@@ -41,6 +82,7 @@ public class DOMParser extends SimpleTreeParser
 	 * @throws InvalidAncestorException If a closing tag has no corresponding 
 	 *                                  opening tag on the stack
 	 */
+	@Override
 	protected void addAncestorInformation(Tag tag, List<Token> tokenList, Stack<Tag> stack, int parent) throws InvalidAncestorException
 	{
 		// check end tags for a corresponding opening tag on the stack
