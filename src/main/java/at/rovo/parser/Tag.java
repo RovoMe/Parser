@@ -144,8 +144,12 @@ public class Tag extends Token
 		if (ret && !this.html.endsWith("-->") && !this.html.endsWith("]]>") && 
 				this.attributes == null)
 		{
-			// remove the ending signs of the token
 			String html = this.html;
+			// if we are in compact mode and have a script, fetch only the 
+			// script start
+			if (html.endsWith("</script>"))
+				html = html.substring(0, html.indexOf(">"));
+			// remove the ending signs of the token
 			if (html.endsWith("/>"))
 				html = html.substring(0, html.length()-2);
 			else if (html.endsWith(">"))
@@ -162,7 +166,10 @@ public class Tag extends Token
 				if (tokens[i].contains("=\""))
 				{
 					String[] arg = tokens[i].split("=\"");
-					this.attributes.put(arg[0], checkToken(arg[1]));
+					if (arg.length < 2)
+						this.attributes.put(arg[0], "");
+					else
+						this.attributes.put(arg[0], checkToken(arg[1]));
 					currArg = arg[0];
 				}
 				// attribute is split up into multiple tokens, join them as long

@@ -89,7 +89,7 @@ public class ParsingMetaData
 			bylineTag = tag.getShortTag();
 		}
 		
-		if ((tag.isOpeningTag() && tag.getHTML().contains("date")))
+		if ((tag.isOpeningTag() && tag.getHTML().contains("\"date")))
 		{
 //			foundLevel = tag.getLevel();
 			isDate = true;
