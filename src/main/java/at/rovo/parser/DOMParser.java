@@ -25,7 +25,7 @@ public class DOMParser extends SimpleTreeParser
 		this.cleanNoScripts(false);
 		this.cleanStyles(false);
 		this.cleanFormElements(false);
-		this.cleanComments(false);
+		this.cleanComments(true);
 		this.cleanDoctypes(true);
 	}
 	
