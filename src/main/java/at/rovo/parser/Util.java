@@ -106,7 +106,7 @@ public class Util
 	 * @return A formated representation of the HTML tree based on the selected
 	 *         root tag
 	 */
-	public static String niceHTMLFormat(Token node, boolean endTagsIncluded)
+	public static String niceHTMLFormat(Token node, SimpleTreeParser parser, boolean endTagsIncluded)
 	{
 		StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < node.getLevel(); i++)
@@ -123,7 +123,7 @@ public class Util
 			if (child.getText() == null)
 			{
 				builder.append("\n");
-				builder.append(Util.niceHTMLFormat(child, endTagsIncluded));
+				builder.append(Util.niceHTMLFormat(child, parser, endTagsIncluded));
 				hasPrintedLeaf = false;
 			}
 			else
@@ -139,13 +139,16 @@ public class Util
 				hasPrintedLeaf = true;
 			}
 		}
-		if (!endTagsIncluded && node.getText() == null
-				&& !node.getHTML().endsWith("/>"))
+		if (!endTagsIncluded && 
+				// don't close words
+				node.getText() == null &&
+				// don't close tags that are self-closed
+				!node.getHTML().endsWith("/>") && 
+				// don't close comments
+				!node.getHTML().startsWith("<!--"))
 		{
-			if (!node.getHTML().toLowerCase().startsWith("<meta")
-					&& !node.getHTML().toLowerCase().startsWith("<img")
-					&& !node.getHTML().toLowerCase().startsWith("<link")
-					&& !node.getHTML().toLowerCase().startsWith("<br"))
+			String nodeName = node.getName().replace("[<|>|/]", "");
+			if (!parser.ignoreIndentationTags.contains(nodeName))
 			{
 				builder.append("\n");
 				for (int i = 0; i < node.getLevel(); i++)

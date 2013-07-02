@@ -3,10 +3,8 @@ package at.rovo.parser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import at.rovo.UrlReader;
 
 /**
@@ -42,6 +40,9 @@ public class Parser
 	/** If set to true will result in META tags to be removed from the token 
 	 * list **/
 	private boolean cleanMeta = false;
+	/** If set to true will result in IFRAME tags to be removed from the token 
+	 * list **/
+	private boolean cleanIFrame = true;
 	/** If set to true will result in LINK tags to be removed from the token 
 	 * list **/
 	private boolean cleanLinks = true;
@@ -98,7 +99,8 @@ public class Parser
 	 */
 	public Parser()
 	{
-		this.compactTags.add("iframe");
+		if (this.cleanIFrame)
+			this.compactTags.add("iframe");
 		if (this.cleanScripts)
 			this.compactTags.add("script");
 		if (this.cleanNoScripts)
@@ -123,6 +125,18 @@ public class Parser
 	public void cleanMeta(boolean clean) 
 	{ 
 		this.cleanMeta = clean; 
+	}
+	
+	/**
+	 * <p>Defines if a IFRAME tag should be removed from the parsed token list.
+	 * </p>
+	 * 
+	 * @param clean True specifies to remove IFRAME tags; false will keep them 
+	 *              in the result
+	 */
+	public void cleanIFrame(boolean clean) 
+	{ 
+		this.cleanIFrame = clean; 
 	}
 	
 	/**
@@ -162,11 +176,11 @@ public class Parser
 	 */
 	public void cleanNoScripts(boolean clean) 
 	{ 
-		this.cleanScripts = clean; 
-		if (clean && !this.compactTags.contains("script"))
-			this.compactTags.add("script");
+		this.cleanNoScripts = clean; 
+		if (clean && !this.compactTags.contains("noscript"))
+			this.compactTags.add("noscript");
 		else if (!clean)
-			this.compactTags.remove("script");
+			this.compactTags.remove("noscript");
 	}
 	
 	/**
@@ -262,6 +276,14 @@ public class Parser
 	 *         otherwise
 	 */
 	public boolean cleanMeta() { return this.cleanMeta; }
+	
+	/**
+	 * <p>Returns if IFRAME tags are removed from the token list.</p>
+	 * 
+	 * @return True if IFRAME tags are removed from the token list; false 
+	 *         otherwise
+	 */
+	public boolean cleanIFrame() { return this.cleanIFrame; }
 	
 	/**
 	 * <p>Returns if LINK tags are removed from the token list.</p>
@@ -567,7 +589,20 @@ public class Parser
 		// remove whitespace characters
 		token = token.trim();
 		
-		if (token.startsWith("<") && this.tagFinished && this.compact == null)
+		// valid tokens start with a < character
+		if (token.startsWith("<") && 
+				// a valid tag needs at least 2 characters
+				token.length() > 1 && 
+				// create a new tag if either there is no tag from the previous
+				// iteration or it was no script tag
+				(this.tag == null || !this.tag.getHTML().startsWith("<script") || 
+				// create a script tag only if it is a complete tag
+				// we might find a token that equals '<playlistArr.length;i++){'
+				// don't treat is as a tag
+				this.tag.getHTML().startsWith("<script") && token.endsWith("</script>")) 
+				// only add a new tag if the previous tag is complete and there
+				// is no compact in progress
+				&& this.tagFinished && this.compact == null)
 		{
 			// we found a new tag either after a word or a preceding tag
 			this.tagFinished = false;
@@ -753,7 +788,7 @@ public class Parser
 			// only a single word to add
 			numWords += this.addWord(word, id,  stack,  tokenList);
 		}
-		
+				
 		return numWords;
 	}
 	
@@ -821,6 +856,7 @@ public class Parser
 		if (this.cleanComments && tag.isComment() ||
 				this.cleanDoctypes && tag.getShortTag().toLowerCase().equals("!doctype") ||
 				this.cleanMeta && tag.getShortTag().toLowerCase().equals("meta") ||
+				this.cleanIFrame && tag.getShortTag().toLowerCase().equals("iframe") ||
 				this.cleanScripts && tag.getShortTag().toLowerCase().equals("script") ||
 				this.cleanNoScripts && tag.getShortTag().toLowerCase().equals("noscript") ||
 				this.cleanLinks  && tag.getShortTag().toLowerCase().equals("link") ||

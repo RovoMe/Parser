@@ -52,8 +52,6 @@ public class SimpleTreeParser extends Parser
 		this.ignoreIndentationTags.add("img");
 		this.ignoreIndentationTags.add("!doctype");
 		this.ignoreIndentationTags.add("input");
-		this.ignoreIndentationTags.add("script");
-		this.ignoreIndentationTags.add("noscript");
 	}
 	
 	/**
@@ -342,6 +340,9 @@ public class SimpleTreeParser extends Parser
 	protected boolean checkElementsOnStack(Tag node, Stack<Tag> stack, List<Token> tokenList)
 	{
 		// first element on the stack is the root-element
+		if (node.isComment())
+			return false;
+		
 		for (int i=stack.size()-1; i>0; i--)
 		{
 			Token curNode = stack.elementAt(i);

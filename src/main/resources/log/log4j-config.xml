@@ -30,14 +30,20 @@ http://logging.apache.org/log4j/2.x/manual/layouts.html
       <PatternLayout pattern="%d{HH:mm:ss} %p %C{1}.%M() - %m%n"/>
       <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
     </Console>
-    <File name="ExtractorFile" fileName="log/Parser.log" append="false">
+    <File name="ParserFile" fileName="log/Parser.log" append="false">
       <PatternLayout pattern="%d{HH:mm:ss} %p %C{1}.%M() - %m%n"/>
     </File>
   </appenders>
   
   <loggers>	
-  	<logger name="at.rovo.parser.Parser" level="info" additivity="true">
-  	  <appender-ref ref="ExtractorFile"/>
+   	<logger name="at.rovo.parser.Parser" level="info" additivity="true">
+  	  <appender-ref ref="ParserFile"/>
+  	</logger>
+  	<logger name="at.rovo.parser.SimpleTreeParser" level="info" additivity="true">
+  	  <appender-ref ref="ParserFile"/>
+  	</logger>
+   	<logger name="at.rovo.parser.TSReCParser" level="info" additivity="true">
+  	  <appender-ref ref="ParserFile"/>
   	</logger>
   	<logger name="at.rovo" level="info" additivity="true">
   	  <appender-ref ref="Console"/>

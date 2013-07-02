@@ -19,7 +19,7 @@ public class ParsingMetaData
 	private String bylineTag = null;
 	private String byline = "";
 	
-	private int foundLevel = 0;
+//	private int foundLevel = 0;
 	
 	public String getTitle()
 	{
@@ -76,14 +76,14 @@ public class ParsingMetaData
 		if (tag.getHTML().equals("<title>"))
 		{
 			isTitle = true;
-			foundLevel = tag.getLevel();
+//			foundLevel = tag.getLevel();
 		}
 		else if (tag.getHTML().equals("</title>"))
 			isTitle = false;
 		
 		if (tag.getHTML().contains("byline"))
 		{
-			foundLevel = tag.getLevel();
+//			foundLevel = tag.getLevel();
 			isByline = true;
 			byline = tag.getHTML();
 			bylineTag = tag.getShortTag();
@@ -91,7 +91,7 @@ public class ParsingMetaData
 		
 		if ((tag.isOpeningTag() && tag.getHTML().contains("date")))
 		{
-			foundLevel = tag.getLevel();
+//			foundLevel = tag.getLevel();
 			isDate = true;
 		}
 		else if (isDate)
@@ -99,13 +99,13 @@ public class ParsingMetaData
 		
 		if ((tag.isOpeningTag() && tag.getHTML().contains("\"authorName\"")))
 		{
-			foundLevel = tag.getLevel();
+//			foundLevel = tag.getLevel();
 			authors.add("");
 			isAuthorName = true;
 		}
 		else if (tag.isOpeningTag() && tag.getHTML().contains("\"author\""))
 		{
-			foundLevel = tag.getLevel();
+//			foundLevel = tag.getLevel();
 			authors.add("");
 			isAuthor = true;
 		}
@@ -163,59 +163,59 @@ public class ParsingMetaData
 	{
 		if (isTitle)
 		{
-			if (foundLevel+1 == word.getLevel())
+//			if (foundLevel+1 == word.getLevel())
 				if (!combineWords)
 					title += " "+word.getText();
 				else
 					title = word.getText();
-			else
-				this.clear();
+//			else
+//				this.clear();
 		}
 		if (isDate)
 		{
-			if (foundLevel+1 == word.getLevel())
+//			if (foundLevel+1 == word.getLevel())
 				if (!combineWords)
 					date += " "+word.getText();
 				else
 					date = word.getText();
-			else
-				this.clear();
+//			else
+//				this.clear();
 		}
 		if (isAuthorName)
 		{
-			if (foundLevel+1 == word.getLevel())
+//			if (foundLevel+1 == word.getLevel())
 				if (!combineWords)
 					authorName.set(authorName.size()-1, (authorName.get(authorName.size()-1)+" "+word.getText()).trim());
 				else
 					authors.set(authors.size()-1, word.getText());
-			else
-				this.clear();
+//			else
+//				this.clear();
 		}
 		if (isAuthor)
 		{
-			if (foundLevel+1 == word.getLevel())
+//			if (foundLevel+1 == word.getLevel())
 				if (!combineWords)
 					authors.set(authors.size()-1, (authors.get(authors.size()-1)+" "+word.getText()).trim());
 				else
 					authors.set(authors.size()-1, word.getText());
-			else
-				this.clear();
+//			else
+//				this.clear();
 		}
 		if (isByline)
 		{
-			if (foundLevel+1 == word.getLevel())
+//			if (foundLevel+1 == word.getLevel())
 				byline += " "+word.getText();
-			else
-				this.clear();
+//			else
+//				this.clear();
 		}
 	}
 	
-	private void clear()
-	{
-		this.isAuthor = false;
-		this.isAuthorName = false;
-		this.isByline = false;
-		this.isDate = false;
-		this.isTitle = false;
-	}
+//	private void clear()
+//	{
+//		this.isAuthor = false;
+//		this.isAuthorName = false;
+//		this.isByline = false;
+//		this.isDate = false;
+//		this.isTitle = false;
+//	}
 }
