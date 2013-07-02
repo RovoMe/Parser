@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.net.URL;
 import java.net.HttpURLConnection;
+import java.nio.charset.StandardCharsets;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -52,7 +53,7 @@ public class UrlReader
 			// Try and get a cookie the site will set, we will pass this next time round
 			cookie = httpConn.getHeaderField("Set-Cookie");
 			
-			reader = new InputStreamReader(httpConn.getInputStream(), "UTF8");
+			reader = new InputStreamReader(httpConn.getInputStream(), StandardCharsets.UTF_8);
 //			reader = new InputStreamReader(new URL(url).openStream(), "8859_1");
 		}
 		return new BufferedReader(reader);

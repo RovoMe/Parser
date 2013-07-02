@@ -2,6 +2,8 @@ package at.rovo.test;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,10 +32,11 @@ public class ParserTest
 	private String html = "";
 		
 	@Before
-	public void loadTestPage() throws IOException
+	public void loadTestPage() throws IOException, URISyntaxException
 	{
 		StringBuffer sb = new StringBuffer();
-		Path path = Paths.get("./src/test/resources/testPage.html");
+		URL url = this.getClass().getResource("/testPage.html");
+		Path path = Paths.get(url.toURI());
 		try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8))
 		{
 			String line = null;
@@ -343,7 +346,7 @@ public class ParserTest
 		Tag body = (Tag)tokens.get(0).getChildren()[1];
 		Assert.assertEquals(5, body.getChildren().length);
 		
-		// p-tag
+		// p-tag - xpath: /html/body/*[0]/*[2]/*[0]/*[0]
 		Tag pTag = (Tag)body.getChildren()[0].getChildren()[2].getChildren()[0].getChildren()[0];
 		Assert.assertEquals(Tag.class, pTag.getClass());
 		Assert.assertEquals("<p>", pTag.getName());
