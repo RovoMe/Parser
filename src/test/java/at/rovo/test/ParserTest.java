@@ -281,7 +281,6 @@ public class ParserTest
 	public void testDOMParser()
 	{		
 		Parser parser = new DOMParser();
-		parser.cleanFully(true);
 		parser.combineWords(true);
 		
 		ParseResult parse = parser.tokenize(html, false);

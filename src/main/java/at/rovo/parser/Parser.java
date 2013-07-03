@@ -30,9 +30,6 @@ public class Parser
 	/** A static logger instance **/
 	protected static Logger logger = LogManager.getLogger(Parser.class.getName());
 	
-	/** Specifies if the erased tags should be removed completely or just the 
-	 * content of those tags**/
-	protected boolean cleanFully = false; // TODO: currently everything is cleaned fully
 	/** Specifies if words inside a tag should be combined into a single 
 	 * word-segment **/
 	protected boolean combineWords = false;
@@ -358,29 +355,7 @@ public class Parser
 	 *         otherwise
 	 */
 	public boolean cleanDoctypes() { return this.cleanDoctypes; }
-		
-	/**
-	 * <p>Specifies if tags should be removed completely or only their contend.</p>
-	 * 
-	 * @param cleanFully True will delete the complete tag; false will only 
-	 *                   clean the content of the tags which should be removed
-	 */
-	public void cleanFully(boolean cleanFully)
-	{
-		this.cleanFully = cleanFully;
-	}
-	
-	/**
-	 * <p>Returns if tags get removed completely or only their content.</p>
-	 * 
-	 * @return True if the tag is removed completely; false if only the content
-	 *         is removed
-	 */
-	public boolean isCleanedFully()
-	{
-		return this.cleanFully;
-	}
-	
+			
 	/**
 	 * <p>Specifies if words between tags should be combined to one single 
 	 * object (true) or if they should be kept separated in the resulting

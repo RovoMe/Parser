@@ -37,7 +37,6 @@ public class TSReCParser extends SimpleTreeParser
 	{
 		super();
 		
-		this.cleanFully(true);
 		this.combineWords(true);
 		this.loadTextFlowBreakingTags();
 	}
