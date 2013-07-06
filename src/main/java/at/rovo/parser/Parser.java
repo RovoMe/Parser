@@ -749,7 +749,7 @@ public class Parser
 		int numWords = 0;
 		
 		if (formatText)
-			word = Util.formatText(word);
+			word = ParserUtil.formatText(word);
 		
 		// split words in case they contain a / or a - but are no URL
 //		if ((word.contains("/") && !word.startsWith("http://")) 

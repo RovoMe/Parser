@@ -21,7 +21,7 @@ import at.rovo.parser.SimpleTreeParser;
 import at.rovo.parser.TSReCParser;
 import at.rovo.parser.Tag;
 import at.rovo.parser.Token;
-import at.rovo.parser.Util;
+import at.rovo.parser.ParserUtil;
 import at.rovo.parser.Word;
 
 public class ParserTest
@@ -169,7 +169,7 @@ public class ParserTest
 		Assert.assertEquals("Test Page", tokens.get(4).getText()+" "+tokens.get(5).getText());
 		
 		if (logger.isInfoEnabled())
-			logger.info("\n"+Util.niceHTMLFormat(tokens.get(0), (SimpleTreeParser)parser, true));
+			logger.info("\n"+ParserUtil.niceHTMLFormat(tokens.get(0), (SimpleTreeParser)parser, true));
 		
 		// remove form elements 
 		
@@ -186,7 +186,7 @@ public class ParserTest
 		Assert.assertEquals("Test Page", tokens.get(4).getText()+" "+tokens.get(5).getText());
 		
 		if (logger.isInfoEnabled())
-			logger.info("\n"+Util.niceHTMLFormat(tokens.get(0), (SimpleTreeParser)parser, true));
+			logger.info("\n"+ParserUtil.niceHTMLFormat(tokens.get(0), (SimpleTreeParser)parser, true));
 		
 		// remove form elements and combine words
 		
@@ -204,7 +204,7 @@ public class ParserTest
 		Assert.assertEquals("Test Page", tokens.get(4).getText());
 		
 		if (logger.isInfoEnabled())
-			logger.info("\n"+Util.niceHTMLFormat(tokens.get(0), (SimpleTreeParser)parser, true));
+			logger.info("\n"+ParserUtil.niceHTMLFormat(tokens.get(0), (SimpleTreeParser)parser, true));
 	}
 	
 	@Test
@@ -274,7 +274,7 @@ public class ParserTest
 		Assert.assertEquals(Word.class, divTag.getSubElements().get(4).getClass());
 		
 		if (logger.isInfoEnabled())
-			logger.info("\n"+Util.niceTSReCFormat(tokens));
+			logger.info("\n"+ParserUtil.niceTSReCFormat(tokens));
 	}
 	
 	@Test
@@ -353,6 +353,6 @@ public class ParserTest
 		Assert.assertEquals("Test Page Content", pTag.getChildren()[0].getText());
 		
 		if (logger.isInfoEnabled())
-			logger.info("\n"+Util.niceHTMLFormat(tokens.get(0), (SimpleTreeParser)parser, false));
+			logger.info("\n"+ParserUtil.niceHTMLFormat(tokens.get(0), (SimpleTreeParser)parser, false));
 	}
 }

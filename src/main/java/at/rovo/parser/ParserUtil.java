@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import at.rovo.stemmer.PorterStemmer;
 
-public class Util
+public class ParserUtil
 {
 	/**
 	 * <p>Splits a text into a sequence of tokens where <em>replace</em> is a
@@ -105,9 +105,16 @@ public class Util
 	 *                        closing tags automatically.
 	 * @return A formated representation of the HTML tree based on the selected
 	 *         root tag
+	 * @throws IllegalArgumentException If the parser is not a tree parser
 	 */
-	public static String niceHTMLFormat(Token node, SimpleTreeParser parser, boolean endTagsIncluded)
+	public static String niceHTMLFormat(Token node,Parser parser, boolean endTagsIncluded)
 	{
+		SimpleTreeParser stParser = null;
+		if (parser instanceof SimpleTreeParser)
+			stParser = (SimpleTreeParser)parser;
+		else
+			throw new IllegalArgumentException("No tree parser provided!");
+			
 		StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < node.getLevel(); i++)
 			builder.append("\t");
@@ -123,7 +130,7 @@ public class Util
 			if (child.getText() == null)
 			{
 				builder.append("\n");
-				builder.append(Util.niceHTMLFormat(child, parser, endTagsIncluded));
+				builder.append(ParserUtil.niceHTMLFormat(child, stParser, endTagsIncluded));
 				hasPrintedLeaf = false;
 			}
 			else
@@ -148,7 +155,7 @@ public class Util
 				!node.getHTML().startsWith("<!--"))
 		{
 			String nodeName = node.getName().replace("[<|>|/]", "");
-			if (!parser.ignoreIndentationTags.contains(nodeName))
+			if (!stParser.ignoreIndentationTags.contains(nodeName))
 			{
 				builder.append("\n");
 				for (int i = 0; i < node.getLevel(); i++)
