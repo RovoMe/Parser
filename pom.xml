@@ -28,6 +28,12 @@
 			<version>4.11</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- Common -->
+		<dependency>
+			<groupId>at.rovo.common</groupId>
+			<artifactId>Common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 		<!-- Porter's Stemmer Algorithm -->
 		<dependency>
 			<groupId>at.rovo.stemmer</groupId>
@@ -35,4 +41,17 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

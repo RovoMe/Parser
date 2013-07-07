@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Stack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import at.rovo.UrlReader;
+import at.rovo.common.UrlReader;
 
 /**
  * <p>A parser reads a HTML page or its text representation as {@link String}
