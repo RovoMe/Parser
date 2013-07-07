@@ -1,6 +1,5 @@
 package at.rovo.parser;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
@@ -57,14 +56,10 @@ public class DOMParser extends SimpleTreeParser
 		
  		// parse and process the tokens from the HTML file 			 		
  		List<Token> tokenList = this.parseToTokens(html, " ", ">", "<", formatText);
-		
- 		// only return the root element
- 		List<Token> ret = new ArrayList<Token>();
- 		ret.add(tokenList.get(0));
- 		
+		 		
  		// generate the result
 		result.setTitle(metaData.getTitle());
-		result.setParsedTokens(ret);
+		result.setParsedTokens(tokenList);
 		result.setAuthorName(metaData.getAuthorNames());
 		result.setAuthors(metaData.getAuthor());
 		result.setPublishDate(metaData.getDate());

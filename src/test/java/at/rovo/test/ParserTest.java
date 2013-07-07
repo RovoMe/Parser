@@ -347,7 +347,6 @@ public class ParserTest
 //					<span class="logo-disqus">
 //						Disqus 
 		
-		Assert.assertEquals(1, tokens.size());
 		Assert.assertEquals("<html>", tokens.get(0).getHTML());
 		Assert.assertEquals(2, tokens.get(0).getChildren().length);
 		
