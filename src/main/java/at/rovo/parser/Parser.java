@@ -607,7 +607,7 @@ public class Parser
 		boolean openQuotes = false;
 		for (int i = 0; i < text.length(); i++)
 		{
-			if (!openQuotes)
+			if (this.tag == null || !this.tag.isValid() && this.tag.getHTML().startsWith("<") && !openQuotes || this.tag.isValid())
 			{
 				for (char c : replaceChars)
 				{
@@ -659,7 +659,7 @@ public class Parser
 			else
 				sb.append(text.charAt(i));
 
-			if (!openQuotes)
+			if (this.tag == null || !this.tag.isValid() && this.tag.getHTML().startsWith("<") && !openQuotes || this.tag.isValid())
 			{
 				for (char c : nonReplaceChars)
 				{
@@ -872,8 +872,7 @@ public class Parser
 				// informations
 				try
 				{
-					Tag newTag = this.createNewTag(tag.getHTML(), tokenList,
-							stack);
+					Tag newTag = this.createNewTag(tag.getHTML(), tokenList, stack);
 					tokenList.add(newTag);
 
 					newTag.setIndex(this.tagPos++);
