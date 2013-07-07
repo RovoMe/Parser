@@ -7,21 +7,27 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * <p>The <em>SimpleTreeParser</em> creates a simple tree representation of the
+ * <p>
+ * The <em>SimpleTreeParser</em> creates a simple tree representation of the
  * parsed HTML tree by adding opening and closing tags as children to their
  * corresponding parent node. Moreover each {@link Tag} node contains a unique
  * ID as well as a reference to the ID of its parent and its position in the
- * siblings list of its parent.</p>
- * <p>Ancestor informations are collected through the utilization of a stack.
- * A simple heuristic is used to probe if a closing tag is suitable. The 
- * heuristic checks the stack for an opening tag that matches the closing tag.
- * If there is a matching tag on the stack the opening tag is used that was added
- * the latest. This further implies that all tags that are added after the
- * opening tag are removed from the stack as well.</p>
- * <p><em>SimpleTreeParser</em> allows adding tag names to the parser instance
- * via {@link #addTagToIgnoreIndentation(String)} which will ignore these tags 
- * from taking an effect on the indentation. The subsequent tag will be on the 
- * same level as the declared tags that ignore indentation.</p>
+ * siblings list of its parent.
+ * </p>
+ * <p>
+ * Ancestor informations are collected through the utilization of a stack. A
+ * simple heuristic is used to probe if a closing tag is suitable. The heuristic
+ * checks the stack for an opening tag that matches the closing tag. If there is
+ * a matching tag on the stack the opening tag is used that was added the
+ * latest. This further implies that all tags that are added after the opening
+ * tag are removed from the stack as well.
+ * </p>
+ * <p>
+ * <em>SimpleTreeParser</em> allows adding tag names to the parser instance via
+ * {@link #addTagToIgnoreIndentation(String)} which will ignore these tags from
+ * taking an effect on the indentation. The subsequent tag will be on the same
+ * level as the declared tags that ignore indentation.
+ * </p>
  * 
  * @author Roman Vottner
  * @see Parser
@@ -37,8 +43,10 @@ public class SimpleTreeParser extends Parser
 	protected List<String> ignoreIndentationTags = new ArrayList<String>();
 		
 	/**
-	 * <p>Initializes a new instance and sets default values for certain fields
-	 * like the tags that are combined or tags that ignore parenting.</p>
+	 * <p>
+	 * Initializes a new instance and sets default values for certain fields
+	 * like the tags that are combined or tags that ignore parenting.
+	 * </p>
 	 */
 	public SimpleTreeParser()
 	{
@@ -55,10 +63,13 @@ public class SimpleTreeParser extends Parser
 	}
 	
 	/**
-	 * <p>Add a tag which ignores indentation. This means the proximating tag will
-	 * be on the same tree level like this tag.</p>
+	 * <p>
+	 * Add a tag which ignores indentation. This means the proximating tag will
+	 * be on the same tree level like this tag.
+	 * </p>
 	 * 
-	 * @param tagName The tag name which should ignore parenting
+	 * @param tagName
+	 *            The tag name which should ignore parenting
 	 */
 	public void addTagToIgnoreIndentation(String tagName)
 	{
@@ -67,9 +78,12 @@ public class SimpleTreeParser extends Parser
 	}
 	
 	/**
-	 * <p>Removes a tag from the list of tags that ignore indentation.</p>
+	 * <p>
+	 * Removes a tag from the list of tags that ignore indentation.
+	 * </p>
 	 * 
-	 * @param tagName The tag to remove from the list to ignore parenting
+	 * @param tagName
+	 *            The tag to remove from the list to ignore parenting
 	 */
 	public void removeTagToIgnoreIndentation(String tagName)
 	{
@@ -78,16 +92,22 @@ public class SimpleTreeParser extends Parser
 	}
 								
 	/**
-	 * <p>Creates a new HTML tag and keeps track of ancestor information as well
-	 * as the indentation level of the current token.</p>
+	 * <p>
+	 * Creates a new HTML tag and keeps track of ancestor information as well as
+	 * the indentation level of the current token.
+	 * </p>
 	 * 
-	 * @param token The HTML text of the tag to create
-	 * @param tokenList The list of already parsed HTML tokens
-	 * @param stack The stack that keeps track of the ancestors of a certain 
-	 *              HTML node
+	 * @param token
+	 *            The HTML text of the tag to create
+	 * @param tokenList
+	 *            The list of already parsed HTML tokens
+	 * @param stack
+	 *            The stack that keeps track of the ancestors of a certain HTML
+	 *            node
 	 * @return The newly created HTML tag
-	 * @throws InvalidAncestorException If no matching opening tag can be found
-	 *                                  on the stack for a closing tag
+	 * @throws InvalidAncestorException
+	 *             If no matching opening tag can be found on the stack for a
+	 *             closing tag
 	 */
 	@Override
 	protected Tag createNewTag(String token, List<Token> tokenList, Stack<Tag> stack) throws InvalidAncestorException
@@ -133,16 +153,23 @@ public class SimpleTreeParser extends Parser
 	}
 
 	/**
-	 * <p>Adds ancestor information to <em>tag</em> and adds the tag as a child
-	 * to it's parent.</p>
+	 * <p>
+	 * Adds ancestor information to <em>tag</em> and adds the tag as a child to
+	 * it's parent.
+	 * </p>
 	 * 
-	 * @param tag The tag to build the ancestor information for
-	 * @param tokenList The list of already parsed HTML tokens
-	 * @param stack The stack that keeps track of the ancestors of a certain 
-	 *              HTML node
-	 * @param parent The ID of the parent of <em>tag</em>
-	 * @throws InvalidAncestorException If a closing tag has no corresponding 
-	 *                                  opening tag on the stack
+	 * @param tag
+	 *            The tag to build the ancestor information for
+	 * @param tokenList
+	 *            The list of already parsed HTML tokens
+	 * @param stack
+	 *            The stack that keeps track of the ancestors of a certain HTML
+	 *            node
+	 * @param parent
+	 *            The ID of the parent of <em>tag</em>
+	 * @throws InvalidAncestorException
+	 *             If a closing tag has no corresponding opening tag on the
+	 *             stack
 	 */
 	protected void addAncestorInformation(Tag tag, List<Token> tokenList, Stack<Tag> stack, int parent) throws InvalidAncestorException
 	{
@@ -172,14 +199,18 @@ public class SimpleTreeParser extends Parser
 	}
 	
 	/**
-	 * <p>Checks if a tag is allowed to be added to the list of parsed tokens.
+	 * <p>
+	 * Checks if a tag is allowed to be added to the list of parsed tokens.
 	 * </p>
 	 * 
-	 * @param tag The tag to check for its validity to be added to the list of
+	 * @param tag
+	 *            The tag to check for its validity to be added to the list of
 	 *            parsed tokens
-	 * @param tokenList The list of already parsed HTML tokens
-	 * @param stack The stack that keeps track of the ancestors of a certain 
-	 *              HTML node
+	 * @param tokenList
+	 *            The list of already parsed HTML tokens
+	 * @param stack
+	 *            The stack that keeps track of the ancestors of a certain HTML
+	 *            node
 	 */
 	@Override
 	protected void checkTagValidity(Tag tag, List<Token> tokenList, Stack<Tag> stack)
@@ -204,7 +235,9 @@ public class SimpleTreeParser extends Parser
 						StringBuilder builder = new StringBuilder();
 						for (int i=0; i<newTag.getLevel(); i++)
 							builder.append("\t");
-						logger.debug(builder.toString()+newTag.getName()+" id: "+newTag.getNo()+" parent: "+newTag.getParentNo()+" html: \t\t"+newTag.getHTML());
+						logger.debug("{} id: {} parent: {} html: \t\t{}", 
+								builder.toString()+newTag.getName(), newTag.getNo(), 
+								newTag.getParentNo(), newTag.getHTML());
 					}
 					
 					// put the tag on the stack if it does not appear within the
@@ -219,21 +252,26 @@ public class SimpleTreeParser extends Parser
 				}
 				catch (InvalidAncestorException iaEx)
 				{
-					if (logger.isWarnEnabled())
-						logger.warn(iaEx.getMessage());
+					logger.catching(iaEx);
 				}
 			}
 		}
 	}
 	
 	/**
-	 * <p>Adds either a new word to the list of parsed tokens or appends the
-	 * word to the last added word if {@link #combineWords} is set to true.</p>
+	 * <p>
+	 * Adds either a new word to the list of parsed tokens or appends the word
+	 * to the last added word if {@link #combineWords} is set to true.
+	 * </p>
 	 * 
-	 * @param word The word to add
-	 * @param id The id of the word to add
-	 * @param stack The ancestors of the word
-	 * @param tokenList The list of parsed tokens
+	 * @param word
+	 *            The word to add
+	 * @param id
+	 *            The id of the word to add
+	 * @param stack
+	 *            The ancestors of the word
+	 * @param tokenList
+	 *            The list of parsed tokens
 	 * @return The number of words added; This is 0 if the word got appended to
 	 *         a preceding word
 	 */
@@ -294,12 +332,18 @@ public class SimpleTreeParser extends Parser
 	}
 	
 	/**
-	 * <p>Creates a new word or updates a word from a previous iteration.</p>
+	 * <p>
+	 * Creates a new word or updates a word from a previous iteration.
+	 * </p>
 	 * 
-	 * @param word The word to add
-	 * @param parent The parent HTML element of this word
-	 * @param sibling The position of this word amongst its siblings
-	 * @param level The level of this word
+	 * @param word
+	 *            The word to add
+	 * @param parent
+	 *            The parent HTML element of this word
+	 * @param sibling
+	 *            The position of this word amongst its siblings
+	 * @param level
+	 *            The level of this word
 	 */
 	protected void newWord(int id, String word, int parent, int sibling, int level)
 	{
@@ -320,22 +364,29 @@ public class SimpleTreeParser extends Parser
 	}
 	
 	/**
-	 * <p>Checks if a HTML node has a corresponding parent on the stack. If so
+	 * <p>
+	 * Checks if a HTML node has a corresponding parent on the stack. If so
 	 * nodes are taken from the stack until the parent is reached. The parent is
-	 * now the last entry on the stack.</p>
-	 * <p>If no matching parent could be found, the algorithm assumes that the
-	 * tag itself is a wild tag and should not be included in the final output,
+	 * now the last entry on the stack.
+	 * </p>
+	 * <p>
+	 * If no matching parent could be found, the algorithm assumes that the tag
+	 * itself is a wild tag and should not be included in the final output,
 	 * therefore the tag is removed from the tokenList and the reference of the
-	 * parent pointing to this node is removed.</p>
+	 * parent pointing to this node is removed.
+	 * </p>
 	 * 
-	 * @param node The node to check if a corresponding parent is on the stack
-	 * @param stack The stack that includes all ancestors
-	 * @param tokenList The list containing all HTML nodes
-	 * @param childEndTag Defines if the end tag is on the same level as the start 
-	 *                    tag (true) or the end tag is a child of the start tag 
-	 *                    (false)
-	 * @return Returns true if the element is a wild node and has no ancestor 
-	 *         on the stack, false otherwise
+	 * @param node
+	 *            The node to check if a corresponding parent is on the stack
+	 * @param stack
+	 *            The stack that includes all ancestors
+	 * @param tokenList
+	 *            The list containing all HTML nodes
+	 * @param childEndTag
+	 *            Defines if the end tag is on the same level as the start tag
+	 *            (true) or the end tag is a child of the start tag (false)
+	 * @return Returns true if the element is a wild node and has no ancestor on
+	 *         the stack, false otherwise
 	 */
 	protected boolean checkElementsOnStack(Tag node, Stack<Tag> stack, List<Token> tokenList)
 	{
@@ -355,8 +406,7 @@ public class SimpleTreeParser extends Parser
 				return false;
 			}
 		}
-		if (logger.isWarnEnabled())
-			logger.warn("Ignoring "+node.getNo()+" "+node.getName());
+		logger.warn("Ignoring {} {}", node.getNo(), node.getName());
 		return true;
 	}
 }

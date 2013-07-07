@@ -3,8 +3,13 @@ package at.rovo.test;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import at.rovo.parser.DOMParser;
 import at.rovo.parser.ParseResult;
@@ -16,6 +21,22 @@ import at.rovo.parser.Word;
 
 public class DOMText
 {
+	private static Logger logger;
+	
+	@BeforeClass
+	public static void initLogger() throws URISyntaxException
+	{
+		String path = DOMText.class.getResource("/log/log4j2-test.xml").toURI().getPath();
+		System.setProperty("log4j.configurationFile", path);
+		logger = LogManager.getLogger(DOMText.class);
+	}
+	
+	@AfterClass
+	public static void cleanLogger()
+	{
+		System.clearProperty("log4j.configurationFile");
+	}
+	
 	@Test
 	public void testDOMGeneration()
 	{
@@ -47,21 +68,21 @@ public class DOMText
 		Token html = nodes.get(0);
 		
 		// Debug-Output
-//		for (Token node : html.getChildren())
-//		{
-//			if (node.getChildren() != null && node.getChildren().length > 0)
-//			{
-//				System.out.println("No: "+node.getNo());
-//				System.out.println("Name: "+node.getName());
-//				System.out.println("Parent: "+node.getParentNo());
-//			
-//				for (Token n : node.getChildren())
-//				{
-//					System.out.println("child of "+node.getName()+": "+n.getNo()+" "+n.getName());
-//				}
-//				System.out.println();
-//			}
-//		}
+		for (Token node : html.getChildren())
+		{
+			if (node.getChildren() != null && node.getChildren().length > 0)
+			{
+				logger.debug("No: "+node.getNo());
+				logger.debug("Name: "+node.getName());
+				logger.debug("Parent: "+node.getParentNo());
+			
+				for (Token n : node.getChildren())
+				{
+					logger.debug("child of "+node.getName()+": "+n.getNo()+" "+n.getName());
+				}
+				logger.debug("");
+			}
+		}
 		
 		String text0 = "Dies ist ein Test Erster Test. Anchor Text Und noch ein Test. Dieser Test wird durch einen weiteren Satz erweitert, der sogar noch einen Nebensatz beinhaltet.";
 		String text1 = "Dies ist ein Test";
@@ -154,7 +175,7 @@ public class DOMText
 		
 	static void writeFile(String file, String content) throws IOException
 	{
-		System.out.print("Writing file '"+file+"'");
+		logger.debug("Writing file '"+file+"'");
 	    PrintWriter out = new PrintWriter(new FileWriter(file));
 	         
 	    // Write text to file
@@ -168,6 +189,6 @@ public class DOMText
 		{
 			e.printStackTrace();
 		}
-	    System.out.println(" ... DONE");
+	    logger.debug(" ... DONE");
 	}
 }

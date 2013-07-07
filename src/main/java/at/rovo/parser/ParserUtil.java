@@ -7,21 +7,29 @@ import at.rovo.stemmer.PorterStemmer;
 public class ParserUtil
 {
 	/**
-	 * <p>Splits a text into a sequence of tokens where <em>replace</em> is a
-	 * set of characters that will split the character sequence into tokens 
-	 * without including the splitting characters in the final token.</p>
-	 * <p><em>nonReplace</em> defines characters that will split the text and
-	 * include the token in the token before the split, while 
+	 * <p>
+	 * Splits a text into a sequence of tokens where <em>replace</em> is a set
+	 * of characters that will split the character sequence into tokens without
+	 * including the splitting characters in the final token.
+	 * </p>
+	 * <p>
+	 * <em>nonReplace</em> defines characters that will split the text and
+	 * include the token in the token before the split, while
 	 * <em>splitAndInclude</em> splits tokens and includes the splitting
-	 * character with the following token.</p>
+	 * character with the following token.
+	 * </p>
 	 * 
-	 * @param text The text to split into tokens
-	 * @param replace Splitting characters that should not get included in the 
-	 *                resulting tokens
-	 * @param nonReplace Splitting characters that should get appended to the
-	 *                   leading token
-	 * @param splitAndInclude Splitting character that is the fist character of
-	 *                        the new token
+	 * @param text
+	 *            The text to split into tokens
+	 * @param replace
+	 *            Splitting characters that should not get included in the
+	 *            resulting tokens
+	 * @param nonReplace
+	 *            Splitting characters that should get appended to the leading
+	 *            token
+	 * @param splitAndInclude
+	 *            Splitting character that is the fist character of the new
+	 *            token
 	 * @return A sequence of tokens
 	 */
 	public static String[] split(String text, String replace, String nonReplace, String splitAndInclude)
@@ -95,17 +103,21 @@ public class ParserUtil
 	}
 	
 	/**
-	 * <p>Returns the node and all of its child nodes in a tree-like structure 
-	 * which can be used to inspect the correctness of the parser.</p>
+	 * <p>
+	 * Returns the node and all of its child nodes in a tree-like structure
+	 * which can be used to inspect the correctness of the parser.
+	 * </p>
 	 * 
-	 * @param node The tag to start traversing through child nodes
-	 * @param endTagsIncluded Defines the list of parsed tokens contains end
-	 *                        tags (true) or if they where omitted (false). In
-	 *                        case they where omitted, this function does create
-	 *                        closing tags automatically.
+	 * @param node
+	 *            The tag to start traversing through child nodes
+	 * @param endTagsIncluded
+	 *            Defines the list of parsed tokens contains end tags (true) or
+	 *            if they where omitted (false). In case they where omitted,
+	 *            this function does create closing tags automatically.
 	 * @return A formated representation of the HTML tree based on the selected
 	 *         root tag
-	 * @throws IllegalArgumentException If the parser is not a tree parser
+	 * @throws IllegalArgumentException
+	 *             If the parser is not a tree parser
 	 */
 	public static String niceHTMLFormat(Token node,Parser parser, boolean endTagsIncluded)
 	{
@@ -169,10 +181,13 @@ public class ParserUtil
 	}
 	
 	/**
-	 * <p>Returns the node and all of its child nodes in a TSReC structure 
-	 * which can be used to inspect the correctness of the parser.</p>
+	 * <p>
+	 * Returns the node and all of its child nodes in a TSReC structure which
+	 * can be used to inspect the correctness of the parser.
+	 * </p>
 	 * 
-	 * @param node The parsed tag sequence
+	 * @param node
+	 *            The parsed tag sequence
 	 * @return A representation of the HTML page as TSReC structure
 	 */
 	public static String niceTSReCFormat(List<Token> nodes)
@@ -213,14 +228,19 @@ public class ParserUtil
 	}
 	
 	/**
-	 * <p>Formats text removing certain characters or symbols</p>
-	 * <p>Stemming is applied here:</p>
+	 * <p>
+	 * Formats text removing certain characters or symbols
+	 * </p>
+	 * <p>
+	 * Stemming is applied here:
+	 * </p>
 	 * <ul>
-	 *   <li>Porter's stemming algorithm is applied to non-numeric words</li>
-	 *   <li>Numeric words (numbers) are stemmed to 1</li>
+	 * <li>Porter's stemming algorithm is applied to non-numeric words</li>
+	 * <li>Numeric words (numbers) are stemmed to 1</li>
 	 * </ul>
 	 * 
-	 * @param text Text which should get formated
+	 * @param text
+	 *            Text which should get formated
 	 * @return the formated text
 	 */
 	public static String formatText(String text)

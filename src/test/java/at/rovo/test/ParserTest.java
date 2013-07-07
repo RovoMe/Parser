@@ -11,8 +11,10 @@ import java.nio.file.Paths;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import at.rovo.parser.DOMParser;
 import at.rovo.parser.ParseResult;
@@ -26,11 +28,25 @@ import at.rovo.parser.Word;
 
 public class ParserTest
 {
-	/** A static logger instance **/
-	protected static Logger logger = LogManager.getLogger(ParserTest.class.getName());
+	/** The logger of this class **/
+	protected static Logger logger;
 	
 	private String html = "";
 		
+	@BeforeClass
+	public static void initLogger() throws URISyntaxException
+	{
+		String path = ParserTest.class.getResource("/log/log4j2-test.xml").toURI().getPath();
+		System.setProperty("log4j.configurationFile", path);
+		logger = LogManager.getLogger(ParserTest.class);
+	}
+	
+	@AfterClass
+	public static void cleanLogger()
+	{
+		System.clearProperty("log4j.configurationFile");
+	}
+	
 	@Before
 	public void loadTestPage() throws IOException, URISyntaxException
 	{
@@ -89,8 +105,7 @@ public class ParserTest
 		Assert.assertEquals("<a>", tokens.get(60).getName());
 		Assert.assertEquals(Tag.class, tokens.get(60).getClass());
 		
-		if (logger.isInfoEnabled())
-			logger.info("\n"+tokens);
+		logger.debug("\n{}", tokens);
 	}
 	
 	@Test
@@ -168,8 +183,8 @@ public class ParserTest
 		Assert.assertNull(tokens.get(3).getText());
 		Assert.assertEquals("Test Page", tokens.get(4).getText()+" "+tokens.get(5).getText());
 		
-		if (logger.isInfoEnabled())
-			logger.info("\n"+ParserUtil.niceHTMLFormat(tokens.get(0), (SimpleTreeParser)parser, true));
+
+		logger.debug("\n{}", ParserUtil.niceHTMLFormat(tokens.get(0), parser, true));
 		
 		// remove form elements 
 		
@@ -185,8 +200,7 @@ public class ParserTest
 		Assert.assertNull(tokens.get(3).getText());
 		Assert.assertEquals("Test Page", tokens.get(4).getText()+" "+tokens.get(5).getText());
 		
-		if (logger.isInfoEnabled())
-			logger.info("\n"+ParserUtil.niceHTMLFormat(tokens.get(0), (SimpleTreeParser)parser, true));
+		logger.debug("\n{}", ParserUtil.niceHTMLFormat(tokens.get(0), parser, true));
 		
 		// remove form elements and combine words
 		
@@ -203,8 +217,7 @@ public class ParserTest
 		Assert.assertNull(tokens.get(3).getText());
 		Assert.assertEquals("Test Page", tokens.get(4).getText());
 		
-		if (logger.isInfoEnabled())
-			logger.info("\n"+ParserUtil.niceHTMLFormat(tokens.get(0), (SimpleTreeParser)parser, true));
+		logger.debug("\n{}", ParserUtil.niceHTMLFormat(tokens.get(0), parser, true));
 	}
 	
 	@Test
@@ -273,8 +286,7 @@ public class ParserTest
 		Assert.assertEquals("to upgrade your browser in order to comment.", divTag.getSubElements().get(4).getName());
 		Assert.assertEquals(Word.class, divTag.getSubElements().get(4).getClass());
 		
-		if (logger.isInfoEnabled())
-			logger.info("\n"+ParserUtil.niceTSReCFormat(tokens));
+		logger.debug("\n{}", ParserUtil.niceTSReCFormat(tokens));
 	}
 	
 	@Test
@@ -352,7 +364,6 @@ public class ParserTest
 		Assert.assertEquals(1, pTag.getChildren().length);
 		Assert.assertEquals("Test Page Content", pTag.getChildren()[0].getText());
 		
-		if (logger.isInfoEnabled())
-			logger.info("\n"+ParserUtil.niceHTMLFormat(tokens.get(0), (SimpleTreeParser)parser, false));
+		logger.debug("\n{}", ParserUtil.niceHTMLFormat(tokens.get(0), parser, false));
 	}
 }

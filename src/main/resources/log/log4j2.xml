@@ -8,7 +8,13 @@ http://logging.apache.org/log4j/2.x/manual/layouts.html
 	%p : Level of the event
 	%t : Thread that produced the logging-event
  -->
-<configuration status="warn" name="Parser" packages="at.rovo">
+<configuration status="warn" name="Parser" packages="at.rovo.parser">
+
+  <properties>
+  	<!-- Log file for checking Parser -->
+    <property name="parserFile">log/Parser.log</property>
+  </properties>
+
   <appenders>
   	<Console name="Console" target="SYSTEM_OUT">
       <PatternLayout pattern="%d{HH:mm:ss} %p %C{1}.%M() - %m%n"/>
@@ -30,22 +36,22 @@ http://logging.apache.org/log4j/2.x/manual/layouts.html
       <PatternLayout pattern="%d{HH:mm:ss} %p %C{1}.%M() - %m%n"/>
       <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
     </Console>
-    <File name="ParserFile" fileName="log/Parser.log" append="false">
+    <File name="ParserFile" fileName="${parserFile}" append="false">
       <PatternLayout pattern="%d{HH:mm:ss} %p %C{1}.%M() - %m%n"/>
     </File>
   </appenders>
   
   <loggers>	
-   	<logger name="at.rovo.parser.Parser" level="info" additivity="true">
+   	<logger name="at.rovo.parser.Parser" level="error" additivity="true">
   	  <appender-ref ref="ParserFile"/>
   	</logger>
-  	<logger name="at.rovo.parser.SimpleTreeParser" level="info" additivity="true">
+  	<logger name="at.rovo.parser.SimpleTreeParser" level="error" additivity="true">
   	  <appender-ref ref="ParserFile"/>
   	</logger>
-   	<logger name="at.rovo.parser.TSReCParser" level="info" additivity="true">
+   	<logger name="at.rovo.parser.TSReCParser" level="error" additivity="true">
   	  <appender-ref ref="ParserFile"/>
   	</logger>
-  	<logger name="at.rovo" level="info" additivity="true">
+  	<logger name="at.rovo.parser" level="info" additivity="true">
   	  <appender-ref ref="Console"/>
   	</logger>
     <root level="error">

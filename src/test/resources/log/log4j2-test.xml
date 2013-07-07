@@ -8,7 +8,13 @@ http://logging.apache.org/log4j/2.x/manual/layouts.html
 	%p : Level of the event
 	%t : Thread that produced the logging-event
  -->
-<configuration status="warn" name="Parser" packages="at.rovo">
+<configuration status="warn" name="ParserTest" packages="at.rovo.parser">
+
+  <properties>
+  	<!-- Log file for checking Parser -->
+    <property name="parserFile">log/ParserTest.log</property>
+  </properties>
+
   <appenders>
   	<Console name="Console" target="SYSTEM_OUT">
       <PatternLayout pattern="%d{HH:mm:ss} %p %C{1}.%M() - %m%n"/>
@@ -30,7 +36,7 @@ http://logging.apache.org/log4j/2.x/manual/layouts.html
       <PatternLayout pattern="%d{HH:mm:ss} %p %C{1}.%M() - %m%n"/>
       <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
     </Console>
-    <File name="TestFile" fileName="log/ParserTest.log" append="false">
+    <File name="TestFile" fileName="${parserFile}" append="false">
       <PatternLayout pattern="%d{HH:mm:ss} %p %C{1}.%M() - %m%n"/>
     </File>
   </appenders>
@@ -49,7 +55,7 @@ http://logging.apache.org/log4j/2.x/manual/layouts.html
 	  <appender-ref ref="TestFile"/>
 	</logger>
 	
-	<logger name="at.rovo" level="info" additivity="true">
+	<logger name="at.rovo.parser" level="info" additivity="true">
   	  <appender-ref ref="Console"/>
   	</logger>
   	

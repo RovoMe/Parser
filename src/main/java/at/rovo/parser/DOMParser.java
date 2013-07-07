@@ -5,11 +5,15 @@ import java.util.List;
 import java.util.Stack;
 
 /**
- * <p>Creates a Document Object Model (DOM) like structure of the parsed HTML
- * tokens from the provided HTML page.</p>
- * <p>The resulting output will not contain any closing tags, but as the parsed
+ * <p>
+ * Creates a Document Object Model (DOM) like structure of the parsed HTML
+ * tokens from the provided HTML page.
+ * </p>
+ * <p>
+ * The resulting output will not contain any closing tags, but as the parsed
  * Tokens are stored in a DOM tree structure it is relatively easy to add the
- * closing tags automatically.</p>
+ * closing tags automatically.
+ * </p>
  * 
  * @author Roman Vottner
  */
@@ -31,11 +35,14 @@ public class DOMParser extends SimpleTreeParser
 	}
 	
 	/**
-	 * <p>Builds a DOM tree from the HTML text provided as input.</p>
-	 *  
-	 * @param html A {@link String} representing the full HTML code of a
-	 *             web site
-	 * @param formatText Indicates if the tokens should be formated or not
+	 * <p>
+	 * Builds a DOM tree from the HTML text provided as input.
+	 * </p>
+	 * 
+	 * @param html
+	 *            A {@link String} representing the full HTML code of a web site
+	 * @param formatText
+	 *            Indicates if the tokens should be formated or not
 	 * @return A {@link List} containing the root element of the HTML page
 	 */
 	@Override
@@ -46,8 +53,7 @@ public class DOMParser extends SimpleTreeParser
 			throw new IllegalArgumentException("Invalid html string passed.");
 				
 		// split the html into a token-array
-		if (logger.isDebugEnabled())
-			logger.debug("Splitting page");
+		logger.debug("Splitting page");
 		
  		// parse and process the tokens from the HTML file 			 		
  		List<Token> tokenList = this.parseToTokens(html, " ", ">", "<", formatText);
@@ -71,19 +77,27 @@ public class DOMParser extends SimpleTreeParser
 	}
 	
 	/**
-	 * <p>Adds ancestor information to <em>tag</em> and adds the tag as a child
-	 * to it's parent.</p>
+	 * <p>
+	 * Adds ancestor information to <em>tag</em> and adds the tag as a child to
+	 * it's parent.
+	 * </p>
 	 * 
-	 * @param tag The tag to build the ancestor information for
-	 * @param tokenList The list of already parsed HTML tokens
-	 * @param stack The stack that keeps track of the ancestors of a certain 
-	 *              HTML node
-	 * @param parent The ID of the parent of <em>tag</em>
-	 * @throws InvalidAncestorException If a closing tag has no corresponding 
-	 *                                  opening tag on the stack
+	 * @param tag
+	 *            The tag to build the ancestor information for
+	 * @param tokenList
+	 *            The list of already parsed HTML tokens
+	 * @param stack
+	 *            The stack that keeps track of the ancestors of a certain HTML
+	 *            node
+	 * @param parent
+	 *            The ID of the parent of <em>tag</em>
+	 * @throws InvalidAncestorException
+	 *             If a closing tag has no corresponding opening tag on the
+	 *             stack
 	 */
 	@Override
-	protected void addAncestorInformation(Tag tag, List<Token> tokenList, Stack<Tag> stack, int parent) throws InvalidAncestorException
+	protected void addAncestorInformation(Tag tag, List<Token> tokenList, Stack<Tag> stack, int parent) 
+			throws InvalidAncestorException
 	{
 		// check end tags for a corresponding opening tag on the stack
 		// if none could be found the tag will not be added to the tokenList
@@ -113,14 +127,18 @@ public class DOMParser extends SimpleTreeParser
 	}
 	
 	/**
-	 * <p>Checks if a tag is allowed to be added to the list of parsed tokens.
+	 * <p>
+	 * Checks if a tag is allowed to be added to the list of parsed tokens.
 	 * </p>
 	 * 
-	 * @param tag The tag to check for its validity to be added to the list of
+	 * @param tag
+	 *            The tag to check for its validity to be added to the list of
 	 *            parsed tokens
-	 * @param tokenList The list of already parsed HTML tokens
-	 * @param stack The stack that keeps track of the ancestors of a certain 
-	 *              HTML node
+	 * @param tokenList
+	 *            The list of already parsed HTML tokens
+	 * @param stack
+	 *            The stack that keeps track of the ancestors of a certain HTML
+	 *            node
 	 */
 	@Override
 	protected void checkTagValidity(Tag tag, List<Token> tokenList, Stack<Tag> stack)
@@ -149,7 +167,7 @@ public class DOMParser extends SimpleTreeParser
 							StringBuilder builder = new StringBuilder();
 							for (int i=0; i<newTag.getLevel(); i++)
 								builder.append("\t");
-							logger.debug(builder.toString()+newTag.getName()+" id: "+newTag.getNo()+" parent: "+newTag.getParentNo()+" html: \t\t"+newTag.getHTML());
+							logger.debug("{} id: {} parent: {} html: \t\t{}", builder.toString()+newTag.getName(), newTag.getNo(), newTag.getParentNo(), newTag.getHTML());
 						}
 					}
 					else
@@ -167,8 +185,7 @@ public class DOMParser extends SimpleTreeParser
 				}
 				catch (InvalidAncestorException iaEx)
 				{
-					if (logger.isWarnEnabled())
-						logger.warn(iaEx.getMessage());
+					logger.catching(iaEx);
 				}
 			}
 		}

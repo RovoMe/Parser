@@ -3,34 +3,39 @@ package at.rovo.parser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
- * <p>The Tag Sequence with Region Code (TSReC) parser creates a sequential list
- * of HTML tokens that break the text flow. These tag sequences will contain 
- * tree based information like parent, children and siblings.</p>
- * <p>The basic idea behind <em>TSReC</em> is to extend a tag sequence with extra
- * structural information as the utilization of region code has proven to be an 
+ * <p>
+ * The Tag Sequence with Region Code (TSReC) parser creates a sequential list of
+ * HTML tokens that break the text flow. These tag sequences will contain tree
+ * based information like parent, children and siblings.
+ * </p>
+ * <p>
+ * The basic idea behind <em>TSReC</em> is to extend a tag sequence with extra
+ * structural information as the utilization of region code has proven to be an
  * ideal way in XML processing to attach structural information in element based
- * storage.</p>
- * <p><em>TSReC</em> is a sequence of elements, each of which is defined as:</p>
+ * storage.
+ * </p>
+ * <p>
+ * <em>TSReC</em> is a sequence of elements, each of which is defined as:
+ * </p>
  * <code>TS = &lt;N, RCb, RCe, RCp, RCl, C></code>
- * <p>where <em>N</em> is the name of the tag sequence, <em>RC</em> is the region
+ * <p>
+ * where <em>N</em> is the name of the tag sequence, <em>RC</em> is the region
  * code for the begin, end, parent and level the tag sequence is found. <em>
- * C</em> refers to the content of the tag sequence.</p>
- * <p>The content of a tag sequence can either be a word or a further HTML tag
- * if it does not break the text flow. Such tags are f.e. &lt;a> or &lt;span> 
- * tags. A new tag sequence therefore is only created if a tag breaks the text
- * flow such as &lt;div> or &lt;p></p>
+ * C</em> refers to the content of the tag sequence.
+ * </p>
+ * <p>
+ * The content of a tag sequence can either be a word or a further HTML tag if
+ * it does not break the text flow. Such tags are f.e. &lt;a> or &lt;span> tags.
+ * A new tag sequence therefore is only created if a tag breaks the text flow
+ * such as &lt;div> or &lt;p>
+ * </p>
  * 
  * @author Roman Vottner
  */
 public class TSReCParser extends SimpleTreeParser
 {
-	/** A static logger instance **/
-	protected static Logger logger = LogManager.getLogger(TSReCParser.class.getName());
-
 	private List<String> textFlowBreakingTags = null;
 	
 	public TSReCParser()
@@ -73,14 +78,18 @@ public class TSReCParser extends SimpleTreeParser
 	}
 	
 	/**
-	 * <p>Checks if a tag is allowed to be added to the list of parsed tokens.
+	 * <p>
+	 * Checks if a tag is allowed to be added to the list of parsed tokens.
 	 * </p>
 	 * 
-	 * @param tag The tag to check for its validity to be added to the list of
+	 * @param tag
+	 *            The tag to check for its validity to be added to the list of
 	 *            parsed tokens
-	 * @param tokenList The list of already parsed HTML tokens
-	 * @param stack The stack that keeps track of the ancestors of a certain 
-	 *              HTML node
+	 * @param tokenList
+	 *            The list of already parsed HTML tokens
+	 * @param stack
+	 *            The stack that keeps track of the ancestors of a certain HTML
+	 *            node
 	 */
 	@Override
 	protected void checkTagValidity(Tag tag, List<Token> tokenList, Stack<Tag> stack)
@@ -108,7 +117,9 @@ public class TSReCParser extends SimpleTreeParser
 							StringBuilder builder = new StringBuilder();
 							for (int i=0; i<newTag.getLevel(); i++)
 								builder.append("\t");
-							logger.debug(builder.toString()+newTag.getName()+" id: "+newTag.getNo()+" parent: "+newTag.getParentNo()+" html: \t\t"+newTag.getHTML());
+							logger.debug("{} id: {} parent: {} html: \t\t{}", 
+									builder.toString()+newTag.getName(), newTag.getNo(), 
+									newTag.getParentNo(), newTag.getHTML());
 						}
 						
 						// put the tag on the stack if it does not appear within the
@@ -123,8 +134,7 @@ public class TSReCParser extends SimpleTreeParser
 					}
 					catch (InvalidAncestorException iaEx)
 					{
-						if (logger.isWarnEnabled())
-							logger.warn(iaEx.getMessage());
+							logger.catching(iaEx);
 					}
 				}
 				else
@@ -142,17 +152,17 @@ public class TSReCParser extends SimpleTreeParser
 		}
 	}
 	
-	/**
-	 * <p>Adds either a new word to the list of parsed tokens or appends the
-	 * word to the last added word if {@link #combineWords} is set to true.</p>
-	 * 
-	 * @param word The word to add
-	 * @param id The id of the word to add
-	 * @param stack The ancestors of the word
-	 * @param tokenList The list of parsed tokens
-	 * @return The number of words added; This is 0 if the word got appended to
-	 *         a preceding word
-	 */
+//	/**
+//	 * <p>Adds either a new word to the list of parsed tokens or appends the
+//	 * word to the last added word if {@link #combineWords} is set to true.</p>
+//	 * 
+//	 * @param word The word to add
+//	 * @param id The id of the word to add
+//	 * @param stack The ancestors of the word
+//	 * @param tokenList The list of parsed tokens
+//	 * @return The number of words added; This is 0 if the word got appended to
+//	 *         a preceding word
+//	 */
 	@Override
 	protected int addWord(String word, int id, Stack<Tag> stack, List<Token> tokenList)
 	{
