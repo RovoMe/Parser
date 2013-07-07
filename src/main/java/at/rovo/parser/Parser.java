@@ -605,9 +605,17 @@ public class Parser
 		StringBuilder sb = new StringBuilder();
 		boolean found = false;
 		boolean openQuotes = false;
+		boolean valid = false;
+		boolean tagStart = false;
 		for (int i = 0; i < text.length(); i++)
 		{
-			if (this.tag == null || !this.tag.isValid() && this.tag.getHTML().startsWith("<") && !openQuotes || this.tag.isValid())
+			if (this.tag != null)
+			{
+				valid = this.tag.isValid();
+				tagStart = this.tag.getHTML().startsWith("<");
+			}
+			
+			if (this.tag == null || !valid && tagStart && !openQuotes || valid)
 			{
 				for (char c : replaceChars)
 				{
@@ -648,18 +656,18 @@ public class Parser
 			}
 
 			// catch quoted sections
-			if (text.charAt(i) == '"')
+			if (this.tag != null && !valid && text.charAt(i) == '"')
 				openQuotes = !openQuotes;
 
 			// catch constructs like <div id="companionAd""> but allow sections
 			// like <img src="..." alt="" />
-			if (i > 3 && text.charAt(i - 2) != '=' && text.charAt(i - 1) == '"'	&& text.charAt(i) == '"')
+			if (!valid && i > 3 && text.charAt(i - 2) != '=' && text.charAt(i - 1) == '"' && text.charAt(i) == '"')
 				// ignore the char
 				openQuotes = false;
 			else
 				sb.append(text.charAt(i));
 
-			if (this.tag == null || !this.tag.isValid() && this.tag.getHTML().startsWith("<") && !openQuotes || this.tag.isValid())
+			if (this.tag == null || !valid && tagStart && !openQuotes || valid)
 			{
 				for (char c : nonReplaceChars)
 				{
@@ -717,8 +725,7 @@ public class Parser
 				// create a script tag only if it is a complete tag
 				// we might find a token that equals '<playlistArr.length;i++){'
 				// don't treat is as a tag
-				this.tag.getHTML().startsWith("<script")
-						&& token.endsWith("</script>"))
+				this.tag.getHTML().startsWith("<script") && token.endsWith("</script>"))
 				// only add a new tag if the previous tag is complete and there
 				// is no compact in progress
 				&& this.tagFinished && this.compact == null)
@@ -856,8 +863,7 @@ public class Parser
 	 * @param stack
 	 *            This method will ignore the stack
 	 */
-	protected void checkTagValidity(Tag tag, List<Token> tokenList,
-			Stack<Tag> stack)
+	protected void checkTagValidity(Tag tag, List<Token> tokenList, Stack<Tag> stack)
 	{
 		// check if the tag is complete
 		if (tag.isValid())

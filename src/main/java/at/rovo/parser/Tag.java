@@ -164,6 +164,10 @@ public class Tag extends Token
 		boolean ret = false;
 		if (this.html.startsWith("<!--") && this.html.endsWith("-->"))
 			ret = true;
+		else if (this.html.toLowerCase().startsWith("<script") && this.html.toLowerCase().endsWith("/script>"))
+			ret = true;
+		else if (this.html.toLowerCase().startsWith("<noscript") && this.html.toLowerCase().endsWith("/noscript>"))
+			ret = true;
 		else if (this.html.startsWith("<![") && this.html.endsWith("]]>"))
 			ret = true;
 		else if (!this.html.startsWith("<!--") && this.html.endsWith(">"))
@@ -171,47 +175,58 @@ public class Tag extends Token
 
 		if (ret && !this.html.endsWith("-->") && !this.html.endsWith("]]>")	&& this.attributes == null)
 		{
-			String html = this.html;
-			// if we are in compact mode and have a script, fetch only the
-			// script start
-			if (html.endsWith("</script>"))
-				html = html.substring(0, html.indexOf(">"));
-			// remove the ending signs of the token
-			if (html.endsWith("/>"))
-				html = html.substring(0, html.length() - 2);
-			else if (html.endsWith(">"))
-				html = html.substring(0, html.length() - 1);
-
-			// split the attributes into tokens
-			String[] tokens = html.split(" ");
-			this.attributes = new Hashtable<String, String>();
-			String currArg = null;
-			// omit the first token as it is the tag-name
-			for (int i = 1; i < tokens.length; i++)
-			{
-				// check if the token has an assignment-character
-				if (tokens[i].contains("=\""))
-				{
-					String[] arg = tokens[i].split("=\"");
-					if (arg.length < 2)
-						this.attributes.put(arg[0], "");
-					else
-						this.attributes.put(arg[0], checkToken(arg[1]));
-					currArg = arg[0];
-				}
-				// attribute is split up into multiple tokens, join them as long
-				// as no ending quote is reached
-				else if (currArg != null)
-				{
-					String val = this.attributes.get(currArg) + " " + tokens[i];
-					this.attributes.put(currArg, checkToken(val));
-
-					if (val.endsWith("\""))
-						currArg = null;
-				}
-			}
+			this.setAttributes();
 		}
 		return ret;
+	}
+	
+	/**
+	 * <p>
+	 * After a tag validated to true it sets all attributes assigned to the
+	 * tag.
+	 * </p>
+	 */
+	private void setAttributes()
+	{
+		String html = this.html;
+		// if we are in compact mode and have a script, fetch only the
+		// script start
+		if (html.endsWith("</script>"))
+			html = html.substring(0, html.indexOf(">"));
+		// remove the ending signs of the token
+		if (html.endsWith("/>"))
+			html = html.substring(0, html.length() - 2);
+		else if (html.endsWith(">"))
+			html = html.substring(0, html.length() - 1);
+
+		// split the attributes into tokens
+		String[] tokens = html.split(" ");
+		this.attributes = new Hashtable<String, String>();
+		String currArg = null;
+		// omit the first token as it is the tag-name
+		for (int i = 1; i < tokens.length; i++)
+		{
+			// check if the token has an assignment-character
+			if (tokens[i].contains("=\""))
+			{
+				String[] arg = tokens[i].split("=\"");
+				if (arg.length < 2)
+					this.attributes.put(arg[0], "");
+				else
+					this.attributes.put(arg[0], checkToken(arg[1]));
+				currArg = arg[0];
+			}
+			// attribute is split up into multiple tokens, join them as long
+			// as no ending quote is reached
+			else if (currArg != null)
+			{
+				String val = this.attributes.get(currArg) + " " + tokens[i];
+				this.attributes.put(currArg, checkToken(val));
+
+				if (val.endsWith("\""))
+					currArg = null;
+			}
+		}
 	}
 
 	/**

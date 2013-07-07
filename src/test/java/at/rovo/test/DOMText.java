@@ -72,13 +72,13 @@ public class DOMText
 		{
 			if (node.getChildren() != null && node.getChildren().length > 0)
 			{
-				logger.debug("No: "+node.getNo());
-				logger.debug("Name: "+node.getName());
-				logger.debug("Parent: "+node.getParentNo());
+				logger.debug("No: {}", node.getNo());
+				logger.debug("Name: {}", node.getName());
+				logger.debug("Parent: {}", node.getParentNo());
 			
 				for (Token n : node.getChildren())
 				{
-					logger.debug("child of "+node.getName()+": "+n.getNo()+" "+n.getName());
+					logger.debug("child of {}: {} {}", node.getName(), n.getNo(), n.getName());
 				}
 				logger.debug("");
 			}
@@ -175,7 +175,7 @@ public class DOMText
 		
 	static void writeFile(String file, String content) throws IOException
 	{
-		logger.debug("Writing file '"+file+"'");
+		logger.debug("Writing file '{}'", file);
 	    PrintWriter out = new PrintWriter(new FileWriter(file));
 	         
 	    // Write text to file
