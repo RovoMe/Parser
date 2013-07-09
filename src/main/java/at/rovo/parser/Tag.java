@@ -173,7 +173,8 @@ public class Tag extends Token
 		else if (!this.html.startsWith("<!--") && this.html.endsWith(">"))
 			ret = true;
 
-		if (ret && !this.html.endsWith("-->") && !this.html.endsWith("]]>")	&& this.attributes == null)
+		if (ret && !this.html.endsWith("-->") && !this.html.endsWith("]]>")
+				&& this.attributes == null)
 		{
 			this.setAttributes();
 		}

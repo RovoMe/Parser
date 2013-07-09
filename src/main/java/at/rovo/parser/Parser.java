@@ -117,7 +117,7 @@ public class Parser
 	/** The number of tags found **/
 	protected int tagPos = 0;
 	/** Meta-data informations **/
-	protected ParsingMetaData metaData = new ParsingMetaData();
+	protected ParsingMetaData metaData = null;
 	/**
 	 * Flag which indicates if a preceding tag was parsed completely or if it
 	 * still open
@@ -498,6 +498,24 @@ public class Parser
 	{
 		return this.combineWords;
 	}
+	
+	/**
+	 * <p>
+	 * Resets the state of the currently running Parser instance to match the 
+	 * state of a new instance.
+	 * </p>
+	 */
+	protected void reset()
+	{
+		this.tag = null;
+		this.lastWord = null;
+		this.compact = null;
+		this.id = 0;
+		this.numWords = 0;
+		this.tagPos = 0;
+		this.metaData = new ParsingMetaData();
+		this.tagFinished = true;
+	}
 
 	/**
 	 * <p>
@@ -548,12 +566,14 @@ public class Parser
 		if (html == null || html.equals(""))
 			throw new IllegalArgumentException("Invalid html string passed.");
 
+		this.reset();
+		
 		// split the html into a token-array
 		logger.debug("Splitting page");
+		logger.trace("Received HTML: '{}'", html);
 
 		// parse and process the tokens from the HTML file
-		List<Token> tokenList = this.parseToTokens(html, " ", ">", "<",
-				formatText);
+		List<Token> tokenList = this.parseToTokens(html, " ", ">", "<",	formatText);
 
 		// generate the result
 		result.setTitle(metaData.getTitle());
@@ -626,7 +646,10 @@ public class Parser
 					if (text.charAt(i) == c)
 					{
 						if (!sb.toString().trim().equals(""))
+						{
+							logger.trace("Processing token '{}'\ntokenList: '{}'", sb.toString(), tokenList);
 							this.processTokens(sb.toString(), tokenList, stack,	formatText);
+						}
 						sb = new StringBuilder();
 						found = true;
 						break;
@@ -641,7 +664,10 @@ public class Parser
 					if (text.charAt(i) == c)
 					{
 						if (!sb.toString().trim().equals(""))
+						{
+							logger.trace("Processing token '{}'\ntokenList: '{}'", sb.toString(), tokenList);
 							this.processTokens(sb.toString(), tokenList, stack,	formatText);
+						}
 						sb = new StringBuilder();
 					}
 				}
@@ -678,7 +704,10 @@ public class Parser
 					if (text.charAt(i) == c)
 					{
 						if (!sb.toString().trim().equals(""))
+						{
+							logger.trace("Processing token '{}'\ntokenList: '{}'", sb.toString(), tokenList);
 							this.processTokens(sb.toString(), tokenList, stack,	formatText);
+						}
 						sb = new StringBuilder();
 						found = true;
 						break;
@@ -754,6 +783,8 @@ public class Parser
 			}
 			this.lastWord = null;
 
+			logger.trace("Porcessing new Tag: '{}'", this.tag);
+			
 			this.checkTagValidity(this.tag, tokenList, stack);
 		}
 		else if (this.tag != null && !this.tagFinished && this.compact == null)
@@ -764,6 +795,8 @@ public class Parser
 
 			if (token.endsWith(">"))
 				this.tag.setName(this.getTagName(this.tag.getHTML()));
+			
+			logger.trace("Appending '{}' to Tag: '{}'", token, this.tag);
 
 			this.checkTagValidity(this.tag, tokenList, stack);
 		}
@@ -772,11 +805,13 @@ public class Parser
 		{
 			// as appending content to an already valid tag is not possible,
 			// we have to set the content manually
+			logger.trace("Compacting Tag: {} with '{}'", this.tag, token);
 			this.tag.setHTML(this.tag.getHTML() + " " + token);
 			// check if the end of the tag sequence was reached
 			if (this.tag.getHTML().endsWith(this.compact + ">")
 					|| this.tag.getHTML().endsWith(this.compact))
 			{
+				logger.trace("Compacting finished for Tag: '{}'", this.tag);
 				this.checkTagValidity(this.tag, tokenList, stack);
 				this.compact = null;
 				this.tagFinished = true;
@@ -787,12 +822,13 @@ public class Parser
 		{
 			// preceding tags are all closed and the token doesn't start with
 			// an opening tag symbol - so we have a word here
-			int numWords = this.addWord(token, this.id, stack, tokenList,
-					formatText);
+			int numWords = this.addWord(token, this.id, stack, tokenList, formatText);
 			this.metaData.checkToken(this.lastWord, this.combineWords);
 			// keep track of the id's
 			this.id += numWords;
 			this.numWords += numWords;
+			
+			logger.trace("Porcessing new Word: '{}'", this.lastWord);
 
 			if (!this.combineWords)
 				this.lastWord = null;
@@ -868,12 +904,14 @@ public class Parser
 		// check if the tag is complete
 		if (tag.isValid())
 		{
+			logger.trace("Valid tag: '{}'\ntokenList: '{}'", tag, tokenList);
 			// remove the flag
 			this.tagFinished = true;
 
 			// check if we are allowed to add the tag
 			if (!this.needsRemoval(tag))
 			{
+				logger.trace("Tag '{}' survived removal", tag);
 				// create a new tag object with ancestor and sibling
 				// informations
 				try
@@ -883,12 +921,13 @@ public class Parser
 
 					newTag.setIndex(this.tagPos++);
 
-					logger.debug("\tadded Tag: {}", tag);
+					logger.debug("\tadded Tag: '{}'", tag);
 
 					this.metaData.checkTag(newTag);
 				}
 				catch (InvalidAncestorException iaEx)
 				{
+					logger.error("No valid anchestor found for tag: '{}'", tag);
 					logger.catching(iaEx);
 				}
 			}

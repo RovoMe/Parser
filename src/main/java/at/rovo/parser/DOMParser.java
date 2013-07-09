@@ -51,6 +51,8 @@ public class DOMParser extends SimpleTreeParser
 		if (html == null || html.equals(""))
 			throw new IllegalArgumentException("Invalid html string passed.");
 				
+		this.reset();
+		
 		// split the html into a token-array
 		logger.debug("Splitting page");
 		

@@ -6,9 +6,12 @@
 	<artifactId>Parser</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Parser</name>
-
 	<description>Simple HTML Parser Framework</description>
 
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+  
 	<dependencies>
 		<!-- Log4J -->
 		<dependency>
