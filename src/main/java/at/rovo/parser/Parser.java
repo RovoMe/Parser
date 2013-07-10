@@ -761,7 +761,7 @@ public class Parser
 				if (this.tag.getShortTag().equals(compactTag))
 				{
 					if (compactTag.equals("<!--") && !token.endsWith("-->"))
-						this.compact = "-->";
+						this.compact = "--";
 					// check if the found tag was provided as a one-line-tag
 					// f.e. <!--empty-->
 					else if (compactTag.equals("<!--") && token.endsWith("-->"))
@@ -802,9 +802,35 @@ public class Parser
 			logger.trace("Compacting Tag with '{}'", token);
 			this.tag.setHTML(this.tag.getHTML() + " " + token);
 			// check if the end of the tag sequence was reached
-			if (this.tag.getHTML().endsWith(this.compact + ">")
-					|| this.tag.getHTML().endsWith(this.compact))
+			if (this.tag.getHTML().endsWith(this.compact + ">"))
 			{
+				// check if there are nested script declarations
+				// eg. <script ...>document.write(' <script...>...</script')
+				if (compact.equals("script"))
+				{
+					// count the number of <script ...> tags
+					int scriptCount = 1;
+					int scriptPos = this.tag.getHTML().indexOf("<script", 1);
+					while (scriptPos != -1)
+					{
+						scriptCount++;
+						scriptPos = this.tag.getHTML().indexOf("<script", scriptPos+1);
+					}
+					// count the number of </script> tags - due to special encoding
+					int endCount = 0;
+					int endPos = this.tag.getHTML().indexOf("/script>");
+					while (endPos != -1)
+					{
+						endCount++;
+						endPos = this.tag.getHTML().indexOf("/script>", endPos+1);
+					}
+					// check if the number of opening tags is less or equal to
+					// the number of closing tags - sometimes an opening script
+					// is defined as <s+cript while it has a default closing tag
+					// within a documentWrite() method
+					if (scriptCount > endCount)
+						return;
+				}
 				if (token.endsWith(">"))
 					this.tag.setName(this.getTagName(this.tag.getHTML()));
 				logger.trace("Compacting finished for Tag: '{}'", this.tag);

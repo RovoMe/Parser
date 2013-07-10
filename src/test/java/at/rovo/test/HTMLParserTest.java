@@ -57,7 +57,7 @@ public class HTMLParserTest
 		ctx.updateLoggers();  // This causes all Loggers to refetch information from their LoggerConfig.
 		
 		StringBuffer sb = new StringBuffer();
-		URL url = this.getClass().getResource("/webPage.html");
+		URL url = this.getClass().getResource("/testPage2.html");
 		Path path = Paths.get(url.toURI());
 		try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8))
 		{
@@ -73,7 +73,7 @@ public class HTMLParserTest
 		this.html = sb.toString();
 	}
 	
-//	@Test
+	@Test
 	public void test()
 	{
 		Parser parser = new Parser();
@@ -90,19 +90,19 @@ public class HTMLParserTest
 		System.out.println("Number of Words: "+parse.getNumWords());
 	}
 	
-	@Test
-	public void test2()
-	{
-		Parser parser = new Parser();
-		ParseResult parse = parser.tokenizeURL("http://latimesblogs.latimes.com/world_now/2012/08/norway-killer-could-have-been-stopped-sooner-report.html", false);
-		List<Token> tokens = parse.getParsedTokens();
-		
-		System.out.println(tokens);
-		System.out.println("Byline: "+parse.getByline());
-		System.out.println("Title: "+parse.getTitle());
-		System.out.println("Date: "+parse.getPublishDate());
-		System.out.println("Authors: "+parse.getAuthors());
-		System.out.println("Number of Tags: "+parse.getNumTags());
-		System.out.println("Number of Words: "+parse.getNumWords());
-	}
+//	@Test
+//	public void test2()
+//	{
+//		Parser parser = new Parser();
+//		ParseResult parse = parser.tokenizeURL("http://latimesblogs.latimes.com/world_now/2012/08/norway-killer-could-have-been-stopped-sooner-report.html", false);
+//		List<Token> tokens = parse.getParsedTokens();
+//		
+//		System.out.println(tokens);
+//		System.out.println("Byline: "+parse.getByline());
+//		System.out.println("Title: "+parse.getTitle());
+//		System.out.println("Date: "+parse.getPublishDate());
+//		System.out.println("Authors: "+parse.getAuthors());
+//		System.out.println("Number of Tags: "+parse.getNumTags());
+//		System.out.println("Number of Words: "+parse.getNumWords());
+//	}
 }
