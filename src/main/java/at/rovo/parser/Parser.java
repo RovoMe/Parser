@@ -624,19 +624,19 @@ public class Parser
 
 		StringBuilder sb = new StringBuilder();
 		boolean found = false;
-		boolean openQuotes = false;
-		boolean valid = false;
-		boolean tagStart = false;
+//		boolean openQuotes = false;
+//		boolean valid = false;
+//		boolean tagStart = false;
 		for (int i = 0; i < text.length(); i++)
 		{
-			if (this.tag != null)
-			{
-				valid = this.tag.isValid();
-				tagStart = this.tag.getHTML().startsWith("<");
-			}
-			
-			if (this.tag == null || !valid && tagStart && !openQuotes || valid)
-			{
+//			if (this.tag != null)
+//			{
+//				valid = this.tag.isValid();
+//				tagStart = this.tag.getHTML().startsWith("<");
+//			}
+//			
+//			if (this.tag == null || !valid && tagStart && !openQuotes || valid)
+//			{
 				for (char c : replaceChars)
 				{
 					// we found a separating character - split the token at this
@@ -646,10 +646,7 @@ public class Parser
 					if (text.charAt(i) == c)
 					{
 						if (!sb.toString().trim().equals(""))
-						{
-							logger.trace("Processing token '{}'\ntokenList: '{}'", sb.toString(), tokenList);
 							this.processTokens(sb.toString(), tokenList, stack,	formatText);
-						}
 						sb = new StringBuilder();
 						found = true;
 						break;
@@ -664,10 +661,7 @@ public class Parser
 					if (text.charAt(i) == c)
 					{
 						if (!sb.toString().trim().equals(""))
-						{
-							logger.trace("Processing token '{}'\ntokenList: '{}'", sb.toString(), tokenList);
 							this.processTokens(sb.toString(), tokenList, stack,	formatText);
-						}
 						sb = new StringBuilder();
 					}
 				}
@@ -679,22 +673,22 @@ public class Parser
 					found = false;
 					continue;
 				}
-			}
-
-			// catch quoted sections
-			if (this.tag != null && !valid && text.charAt(i) == '"')
-				openQuotes = !openQuotes;
-
-			// catch constructs like <div id="companionAd""> but allow sections
-			// like <img src="..." alt="" />
-			if (!valid && i > 3 && text.charAt(i - 2) != '=' && text.charAt(i - 1) == '"' && text.charAt(i) == '"')
-				// ignore the char
-				openQuotes = false;
-			else
+//			}
+//
+//			// catch quoted sections
+//			if (this.tag != null && !valid && text.charAt(i) == '"')
+//				openQuotes = !openQuotes;
+//
+//			// catch constructs like <div id="companionAd""> but allow sections
+//			// like <img src="..." alt="" />
+//			if (!valid && i > 3 && text.charAt(i - 2) != '=' && text.charAt(i - 1) == '"' && text.charAt(i) == '"')
+//				// ignore the char
+//				openQuotes = false;
+//			else
 				sb.append(text.charAt(i));
 
-			if (this.tag == null || !valid && tagStart && !openQuotes || valid)
-			{
+//			if (this.tag == null || !valid && tagStart && !openQuotes || valid)
+//			{
 				for (char c : nonReplaceChars)
 				{
 					// we found a separating character - split the token and add
@@ -704,10 +698,7 @@ public class Parser
 					if (text.charAt(i) == c)
 					{
 						if (!sb.toString().trim().equals(""))
-						{
-							logger.trace("Processing token '{}'\ntokenList: '{}'", sb.toString(), tokenList);
 							this.processTokens(sb.toString(), tokenList, stack,	formatText);
-						}
 						sb = new StringBuilder();
 						found = true;
 						break;
@@ -717,7 +708,7 @@ public class Parser
 				if (found)
 					found = false;
 			}
-		}
+//		}
 
 		return tokenList;
 	}
@@ -782,8 +773,11 @@ public class Parser
 				}
 			}
 			this.lastWord = null;
+			
+			if (token.endsWith(">"))
+				tag.setName(this.getTagName(tag.getHTML()));
 
-			logger.trace("Porcessing new Tag: '{}'", this.tag);
+			logger.trace("Processing new Tag: '{}'", this.tag.getHTML());
 			
 			this.checkTagValidity(this.tag, tokenList, stack);
 		}
@@ -796,7 +790,7 @@ public class Parser
 			if (token.endsWith(">"))
 				this.tag.setName(this.getTagName(this.tag.getHTML()));
 			
-			logger.trace("Appending '{}' to Tag: '{}'", token, this.tag);
+			logger.trace("Appending '{}' to Tag: '{}'", token, this.tag.getHTML());
 
 			this.checkTagValidity(this.tag, tokenList, stack);
 		}
@@ -805,12 +799,14 @@ public class Parser
 		{
 			// as appending content to an already valid tag is not possible,
 			// we have to set the content manually
-			logger.trace("Compacting Tag: {} with '{}'", this.tag, token);
+			logger.trace("Compacting Tag with '{}'", token);
 			this.tag.setHTML(this.tag.getHTML() + " " + token);
 			// check if the end of the tag sequence was reached
 			if (this.tag.getHTML().endsWith(this.compact + ">")
 					|| this.tag.getHTML().endsWith(this.compact))
 			{
+				if (token.endsWith(">"))
+					this.tag.setName(this.getTagName(this.tag.getHTML()));
 				logger.trace("Compacting finished for Tag: '{}'", this.tag);
 				this.checkTagValidity(this.tag, tokenList, stack);
 				this.compact = null;
@@ -820,6 +816,7 @@ public class Parser
 		}
 		else
 		{
+			logger.trace("Processing new Word: '{}'", token);
 			// preceding tags are all closed and the token doesn't start with
 			// an opening tag symbol - so we have a word here
 			int numWords = this.addWord(token, this.id, stack, tokenList, formatText);
@@ -828,8 +825,6 @@ public class Parser
 			this.id += numWords;
 			this.numWords += numWords;
 			
-			logger.trace("Porcessing new Word: '{}'", this.lastWord);
-
 			if (!this.combineWords)
 				this.lastWord = null;
 		}
@@ -921,7 +916,7 @@ public class Parser
 
 					newTag.setIndex(this.tagPos++);
 
-					logger.debug("\tadded Tag: '{}'", tag);
+					logger.debug("\tadded Tag: '{}'\n", tag);
 
 					this.metaData.checkTag(newTag);
 				}

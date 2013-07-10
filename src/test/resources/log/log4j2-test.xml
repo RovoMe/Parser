@@ -55,7 +55,10 @@ http://logging.apache.org/log4j/2.x/manual/layouts.html
 	  <appender-ref ref="TestFile"/>
 	</logger>
 	
-	<logger name="at.rovo.parser" level="info" additivity="true">
+	<logger name="at.rovo.parser.ParsingMetaData" level="error" additivity="true">
+  	  <appender-ref ref="TestFile"/>
+  	</logger>
+	<logger name="at.rovo.parser" level="error" additivity="true">
   	  <appender-ref ref="Console"/>
   	</logger>
   	

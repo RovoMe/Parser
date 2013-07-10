@@ -5,6 +5,9 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * <p>
  * Represents a HTML or XML tag which starts with a '&lt;' character and ends
@@ -20,6 +23,8 @@ import java.util.Map;
  */
 public class Tag extends Token
 {
+	/** The logger of this class **/
+	protected static Logger logger = LogManager.getLogger(Tag.class);
 	/**
 	 * Used by TSReC parser. Will contain list of appended tokens that will
 	 * appear as sub-elements of this tokens. This are not exactly children per
@@ -107,8 +112,11 @@ public class Tag extends Token
 	String append(String text)
 	{
 		if (!this.isValid())
-			this.html = this.html + " " + text;
-		return this.html;
+		{
+			this.html.append(" ");
+			this.html.append(text);
+		}
+		return this.html.toString();
 	}
 
 	/**
@@ -162,19 +170,37 @@ public class Tag extends Token
 	boolean isValid()
 	{
 		boolean ret = false;
-		if (this.html.startsWith("<!--") && this.html.endsWith("-->"))
+		boolean containsAttribute = true;
+		if (this.html.toString().startsWith("<!--") 
+				&& this.html.toString().endsWith("-->"))
+		{
 			ret = true;
-		else if (this.html.toLowerCase().startsWith("<script") && this.html.toLowerCase().endsWith("/script>"))
+			containsAttribute = false;
+		}
+		else if (this.html.toString().toLowerCase().startsWith("<script") 
+				&& this.html.toString().toLowerCase().endsWith("/script>"))
+		
+		{
 			ret = true;
-		else if (this.html.toLowerCase().startsWith("<noscript") && this.html.toLowerCase().endsWith("/noscript>"))
+			containsAttribute = false;
+		}
+		else if (this.html.toString().toLowerCase().startsWith("<noscript") 
+				&& this.html.toString().toLowerCase().endsWith("/noscript>"))
+		{
 			ret = true;
-		else if (this.html.startsWith("<![") && this.html.endsWith("]]>"))
+			containsAttribute = false;
+		}
+		else if (this.html.toString().startsWith("<![") 
+				&& this.html.toString().endsWith("]]>"))
+		{
 			ret = true;
-		else if (!this.html.startsWith("<!--") && this.html.endsWith(">"))
+			containsAttribute = false;
+		}
+		else if (!this.html.toString().startsWith("<!--") 
+				&& this.html.toString().endsWith(">"))
 			ret = true;
 
-		if (ret && !this.html.endsWith("-->") && !this.html.endsWith("]]>")
-				&& this.attributes == null)
+		if (ret && containsAttribute && this.attributes == null)
 		{
 			this.setAttributes();
 		}
@@ -189,7 +215,7 @@ public class Tag extends Token
 	 */
 	private void setAttributes()
 	{
-		String html = this.html;
+		String html = this.html.toString();
 		// if we are in compact mode and have a script, fetch only the
 		// script start
 		if (html.endsWith("</script>"))
@@ -211,11 +237,22 @@ public class Tag extends Token
 			if (tokens[i].contains("=\""))
 			{
 				String[] arg = tokens[i].split("=\"");
-				if (arg.length < 2)
-					this.attributes.put(arg[0], "");
+				// catch constructs like: onClick =" window.open('...')"
+				if (arg.length == 0)
+				{
+					this.attributes.put(tokens[i-1], checkToken(tokens[i+1]));
+					i++;
+					currArg = tokens[i-1];
+				}
 				else
-					this.attributes.put(arg[0], checkToken(arg[1]));
-				currArg = arg[0];
+				{
+					// catch constructs like: href=""
+					if (arg.length == 1)
+						this.attributes.put(arg[0], "");
+					else
+						this.attributes.put(arg[0], checkToken(arg[1]));
+					currArg = arg[0];
+				}
 			}
 			// attribute is split up into multiple tokens, join them as long
 			// as no ending quote is reached
@@ -304,7 +341,7 @@ public class Tag extends Token
 	 */
 	public boolean isInlineCloseingTag()
 	{
-		if (this.html.endsWith("/>"))
+		if (this.html.toString().endsWith("/>"))
 			return true;
 		return false;
 	}
@@ -326,7 +363,9 @@ public class Tag extends Token
 	 */
 	public boolean isOpeningTag()
 	{
-		if (this.html.startsWith("</") || this.html.endsWith("-->")	|| this.html.endsWith("]]>"))
+		if (this.html.toString().startsWith("</") 
+				|| this.html.toString().endsWith("-->")	
+				|| this.html.toString().endsWith("]]>"))
 			return false;
 		return true;
 	}
@@ -347,9 +386,11 @@ public class Tag extends Token
 	{
 		if (this.html == null)
 			return false;
-		if (this.html.startsWith("<!--") || this.html.endsWith("-->"))
+		if (this.html.toString().startsWith("<!--") 
+				|| this.html.toString().endsWith("-->"))
 			return true;
-		if (this.html.startsWith("<![") || this.html.endsWith("]]>"))
+		if (this.html.toString().startsWith("<![") 
+				|| this.html.toString().endsWith("]]>"))
 			return true;
 		return false;
 	}
@@ -378,7 +419,7 @@ public class Tag extends Token
 	{
 		String shortTag = "";
 		// closing tags
-		if (this.html.startsWith("</"))
+		if (this.html.toString().startsWith("</"))
 		{
 			shortTag = this.html.substring(2);
 			if (shortTag.endsWith(">"))
@@ -395,10 +436,10 @@ public class Tag extends Token
 				shortTag = shortTag.substring(0, shortTag.indexOf("\""));
 		}
 		// opening tags
-		else if (this.html.length() > 1 && this.html.startsWith("<")
+		else if (this.html.length() > 1 && this.html.toString().startsWith("<")
 		/* && this.html.charAt(1) != '!' && this.html.charAt(1) != '[' */)
 		{
-			if (this.html.startsWith("<!--"))
+			if (this.html.toString().startsWith("<!--"))
 				return "<!--";
 			// remove leading <
 			shortTag = this.html.substring(1);
@@ -430,9 +471,9 @@ public class Tag extends Token
 	public void setAsUndefined()
 	{
 		if (this.isOpeningTag())
-			this.html = "<unknown>";
+			this.html = new StringBuilder("<unknown>");
 		else
-			this.html = "</unknown>";
+			this.html = new StringBuilder("</unknown>");
 	}
 
 	@Override
@@ -456,11 +497,11 @@ public class Tag extends Token
 			return false;
 		}
 
-		if (!(this.html.equalsIgnoreCase(tag.html)))
+		if (this.html.toString().equalsIgnoreCase(tag.html.toString()))
 		{
-			return false;
+			return true;
 		}
 
-		return true;
+		return false;
 	}
 }

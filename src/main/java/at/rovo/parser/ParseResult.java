@@ -21,11 +21,12 @@ public class ParseResult
 		
 	}
 	
-	public ParseResult(List<Token> parsedTokens, String title, List<String> authors, String date, String byline)
+	public ParseResult(List<Token> parsedTokens, String title, List<String> authors, List<String> authorNames, String date, String byline)
 	{
 		this.parsedTokens = parsedTokens;
 		this.title = title;
 		this.authors = authors;
+		this.authorName = authorNames;
 		this.date = date;
 		this.byline = byline;
 	}

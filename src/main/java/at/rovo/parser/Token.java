@@ -26,7 +26,7 @@ public abstract class Token
 	/** The node's text value, which is null if the node isn't a leaf **/
 	protected String text = null;
 	/** The full HTML tag **/
-	protected String html = "";
+	protected StringBuilder html;
 	/** The level of node in the DOM tree**/
 	protected int level = 0;
 	/** no of the node's parent **/
@@ -64,14 +64,20 @@ public abstract class Token
 	 */
 	public Token(String html)
 	{
-		this.html = html;
+		if (html == null || html.equals(""))
+			this.html = new StringBuilder();
+		else
+			this.html = new StringBuilder(html);
 	}
 	
 	public Token(int no, String name, String html, int level, int parentNo, int sibNo)
 	{
 		this.no = no;
 		this.name = name;
-		this.html = html;
+		if (html == null || html.equals(""))
+			this.html = new StringBuilder();
+		else
+			this.html = new StringBuilder(html);
 		this.level = level;
 		this.parentNo = parentNo;
 		this.sibNo = sibNo;
@@ -87,7 +93,7 @@ public abstract class Token
 			if (node.text != null)
 				this.text = new String(node.text);
 			if (node.html != null)
-				this.html = new String(node.html);
+				this.html = new StringBuilder(node.html);
 			this.level = node.level;
 			this.parentNo = node.parentNo;
 			this.sibNo = node.sibNo;
@@ -111,8 +117,14 @@ public abstract class Token
 	public String getName() { return this.name; }
 	public void setName(String name) { this.name = name; }
 	public void setText(String text) { this.text = text; }
-	public String getHTML() { return this.html; }
-	public void setHTML(String html) { this.html = html; }
+	public String getHTML() { return this.html.toString(); }
+	public void setHTML(String html) 
+	{ 
+		if (html == null || html.equals(""))
+			this.html = new StringBuilder();
+		else
+			this.html = new StringBuilder(html); 
+	}
 	public int getLevel() {	return this.level; }
 	public void setLevel(int level) { this.level = level; }
 	public int getParentNo() { return this.parentNo; }
