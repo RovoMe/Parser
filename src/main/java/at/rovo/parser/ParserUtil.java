@@ -127,19 +127,36 @@ public class ParserUtil
 		else
 			throw new IllegalArgumentException("No tree parser provided!");
 			
-		StringBuilder builder = new StringBuilder();
+		final StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < node.getLevel(); i++)
 			builder.append("\t");
 
-		if (node.getText() != null)
-			builder.append(node.getText());
-		else
+		if (parser.isWordExcluded())
+		{
+			// words are included within the tag, so print the tag first
+			// add a further tab and print the nodes text
 			builder.append(node.getHTML());
+			if (node.getText() != null)
+			{
+				builder.append("\n");
+				for (int i = 0; i < node.getLevel()+1; i++)
+					builder.append("\t");
+				builder.append(node.getText());
+			}
+		}
+		else
+		{
+			if (node.getText() != null)
+				builder.append(node.getText());
+			else
+				builder.append(node.getHTML());
+		}
 
 		boolean hasPrintedLeaf = false;
 		for (Token child : node.getChildren())
 		{
-			if (child.getText() == null)
+			if ((child.getText() == null && !parser.excludeWordTokens) 
+				|| child.getHTML().startsWith("<") && parser.excludeWordTokens)
 			{
 				builder.append("\n");
 				builder.append(ParserUtil.niceHTMLFormat(child, stParser, endTagsIncluded));
@@ -159,8 +176,8 @@ public class ParserUtil
 			}
 		}
 		if (!endTagsIncluded && 
-				// don't close words
-				node.getText() == null &&
+				// don't close words unless they are included within the tag
+				(node.getText() == null || node.getText() != null && parser.excludeWordTokens) &&
 				// don't close tags that are self-closed
 				!node.getHTML().endsWith("/>") && 
 				// don't close comments

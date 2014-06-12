@@ -45,6 +45,11 @@ public class Parser
 	 * word-segment
 	 **/
 	protected boolean combineWords = false;
+	/**
+	 * Specifies to exclude word tokens. Words are set within 
+	 * {@link Tag#setText(String)}
+	 */
+	protected boolean excludeWordTokens = false;
 	/** Tags that collect everything between opening and closing tags **/
 	protected List<String> compactTags = new ArrayList<String>();
 
@@ -501,6 +506,19 @@ public class Parser
 	
 	/**
 	 * <p>
+	 * Returns if words are not included within the list of parsed tokens. If
+	 * they are excluded, words can be found in {@link Tag#getText()} method.
+	 * </p>
+	 * 
+	 * @return True if words are excluded from the token list, false otherwise
+	 */
+	public boolean isWordExcluded()
+	{
+		return this.excludeWordTokens;
+	}
+	
+	/**
+	 * <p>
 	 * Resets the state of the currently running Parser instance to match the 
 	 * state of a new instance.
 	 * </p>
@@ -624,91 +642,64 @@ public class Parser
 
 		StringBuilder sb = new StringBuilder();
 		boolean found = false;
-//		boolean openQuotes = false;
-//		boolean valid = false;
-//		boolean tagStart = false;
 		for (int i = 0; i < text.length(); i++)
 		{
-//			if (this.tag != null)
-//			{
-//				valid = this.tag.isValid();
-//				tagStart = this.tag.getHTML().startsWith("<");
-//			}
-//			
-//			if (this.tag == null || !valid && tagStart && !openQuotes || valid)
-//			{
-				for (char c : replaceChars)
+			for (char c : replaceChars)
+			{
+				// we found a separating character - split the token at this
+				// position - This token should not get included in the
+				// final token so continue with the next iteration
+				if (text.charAt(i) == c)
 				{
-					// we found a separating character - split the token at this
-					// position - This token should not get included in the
-					// final
-					// token so jump continue with the next iteration
-					if (text.charAt(i) == c)
-					{
-						if (!sb.toString().trim().equals(""))
-							this.processTokens(sb.toString(), tokenList, stack,	formatText);
-						sb = new StringBuilder();
-						found = true;
-						break;
-					}
+					if (!sb.toString().trim().equals(""))
+						this.processTokens(sb.toString(), tokenList, stack,	formatText);
+					sb = new StringBuilder();
+					found = true;
+					break;
 				}
-
-				for (char c : splitAndIncludeChars)
-				{
-					// we found a separating character - split the token at this
-					// position and include the splitting character to the newly
-					// created token
-					if (text.charAt(i) == c)
-					{
-						if (!sb.toString().trim().equals(""))
-							this.processTokens(sb.toString(), tokenList, stack,	formatText);
-						sb = new StringBuilder();
-					}
-				}
-
-				// we have already found a replaceable char - this should not be
-				// added to the token
-				if (found)
-				{
-					found = false;
-					continue;
-				}
-//			}
-//
-//			// catch quoted sections
-//			if (this.tag != null && !valid && text.charAt(i) == '"')
-//				openQuotes = !openQuotes;
-//
-//			// catch constructs like <div id="companionAd""> but allow sections
-//			// like <img src="..." alt="" />
-//			if (!valid && i > 3 && text.charAt(i - 2) != '=' && text.charAt(i - 1) == '"' && text.charAt(i) == '"')
-//				// ignore the char
-//				openQuotes = false;
-//			else
-				sb.append(text.charAt(i));
-
-//			if (this.tag == null || !valid && tagStart && !openQuotes || valid)
-//			{
-				for (char c : nonReplaceChars)
-				{
-					// we found a separating character - split the token and add
-					// the
-					// separating character to the old token as its last
-					// character
-					if (text.charAt(i) == c)
-					{
-						if (!sb.toString().trim().equals(""))
-							this.processTokens(sb.toString(), tokenList, stack,	formatText);
-						sb = new StringBuilder();
-						found = true;
-						break;
-					}
-				}
-
-				if (found)
-					found = false;
 			}
-//		}
+			
+			for (char c : splitAndIncludeChars)
+			{
+				// we found a separating character - split the token at this
+				// position and include the splitting character to the newly
+				// created token
+				if (text.charAt(i) == c)
+				{
+					if (!sb.toString().trim().equals(""))
+						this.processTokens(sb.toString(), tokenList, stack,	formatText);
+					sb = new StringBuilder();
+				}
+			}
+
+			// we have already found a replaceable char - this should not be
+			// added to the token
+			if (found)
+			{
+				found = false;
+				continue;
+			}
+
+			sb.append(text.charAt(i));
+
+			for (char c : nonReplaceChars)
+			{
+				// we found a separating character - split the token and add
+				// the separating character to the old token as its last
+				// character
+				if (text.charAt(i) == c)
+				{
+					if (!sb.toString().trim().equals(""))
+						this.processTokens(sb.toString(), tokenList, stack,	formatText);
+					sb = new StringBuilder();
+					found = true;
+					break;
+				}
+			}
+
+			if (found)
+				found = false;
+		}
 
 		return tokenList;
 	}
@@ -851,7 +842,7 @@ public class Parser
 			this.id += numWords;
 			this.numWords += numWords;
 			
-			if (!this.combineWords)
+			if (!this.combineWords && !this.excludeWordTokens)
 				this.lastWord = null;
 		}
 	}
@@ -1019,10 +1010,16 @@ public class Parser
 			List<Token> tokenList)
 	{
 		int ret = 0;
+		if (this.excludeWordTokens)
+		{
+			// word tokens should not get appended to the token list, instead
+			// words are appended to the last token's text
+			this.lastWord.setText(this.lastWord.getText() + " " + word);
+			stack.peek().setText(lastWord.getText());
+		}
 		// check if this word is the first word after a HTML tag and if we
-		// should
-		// combine words to preceding words
-		if (!this.combineWords || (this.combineWords && 
+		// should combine words to preceding words
+		else if (!this.combineWords || (this.combineWords && 
 				(this.lastWord == null || this.lastWord.getText() == null)))
 		{
 			if (this.lastWord == null)

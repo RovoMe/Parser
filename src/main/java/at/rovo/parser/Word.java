@@ -68,16 +68,22 @@ public class Word extends Token
 	public boolean equals(Object obj)
 	{
 		Word word;
+		
+		if (this.text == null && obj == null)
+			return true;
+		else if (this.text == null || obj == null)
+			return false;
+		
 		if (obj instanceof Word)
 		{
 			word = (Word) obj;
+						
+			if (!(this.text.equalsIgnoreCase(word.text)))
+			{
+				return false;
+			}
 		} 
 		else 
-		{
-			return false;
-		}
-		
-		if (!(this.text.equalsIgnoreCase(word.text)))
 		{
 			return false;
 		}

@@ -279,9 +279,25 @@ public class SimpleTreeParser extends Parser
 	protected int addWord(String word, int id, Stack<Tag> stack, List<Token> tokenList)
 	{
 		int ret = 0;
+		// check if we should exclude words from the token list and instead
+		// append the text to the text field of the last tag
+		if (this.excludeWordTokens)
+		{
+			if (stack.peek().getText() != null && this.lastWord != null)
+				this.lastWord.setText(this.lastWord.getText()+" "+word);
+			else
+			{
+				this.lastWord = new Word(word);
+				this.lastWord.setText(word);
+			}
+			
+			stack.peek().setText(this.lastWord.getText());
+			
+			return 0;
+		}
 		// check if this word is the first word after a HTML tag and if we should
 		// combine words to preceding words
-		if (!this.combineWords || (this.combineWords && 
+		else if (!this.combineWords || (this.combineWords && 
 				(this.lastWord == null || this.lastWord.getText()==null) ))
 		{
 			// either we have a word following a HTML tag or we should not 
@@ -315,7 +331,7 @@ public class SimpleTreeParser extends Parser
 			if (tokenList.size() > parent)
 				tokenList.get(parent).addChild(this.lastWord);
 			tokenList.add(this.lastWord);
-							
+			
 			ret = 1;
 		}
 		else

@@ -33,6 +33,12 @@ public class DOMParser extends SimpleTreeParser
 		this.cleanDoctypes(true);
 	}
 	
+	public DOMParser(boolean excludeWords)
+	{
+		this();
+		this.excludeWordTokens = excludeWords;
+	}
+	
 	/**
 	 * <p>
 	 * Builds a DOM tree from the HTML text provided as input.
@@ -182,7 +188,8 @@ public class DOMParser extends SimpleTreeParser
 				}
 				catch (InvalidAncestorException iaEx)
 				{
-					logger.catching(iaEx);
+//					logger.catching(iaEx);
+					logger.warn(iaEx.getLocalizedMessage());
 				}
 			}
 		}

@@ -140,20 +140,9 @@ public abstract class Token
 	{
 		if (this.children == null || this.children.size() == 0)
 			return new Token[] {};
-		
-		LinkedList<Token> queue = new LinkedList<Token>();
-		for (Token child : this.children)
-			queue.add(child);
-	
-		List<Token> nodes = new ArrayList<Token>();
-	    while(!queue.isEmpty())
-	    {
-	    	Token node = queue.remove();
-	    	nodes.add(node);
-	    }
-	    
+		    
 	    Token[] tmp = new Token[0];	    
-		return nodes.toArray(tmp);
+	    return this.children.toArray(tmp);
 	}
 	
 	public void setChildren(List<Token> children)
@@ -348,9 +337,10 @@ public abstract class Token
 	@Override
 	public String toString() 
 	{ 
-		if (this.text != null && !this.text.equals("")) 
-			return this.text;
-		else
+//		if (this.text != null && !this.text.equals("")) 
+		if (this.html.toString().startsWith("<"))
 			return this.name;
+		else
+			return this.text;
 	}
 }
