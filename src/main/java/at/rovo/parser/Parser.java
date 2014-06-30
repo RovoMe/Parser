@@ -35,6 +35,7 @@ import at.rovo.common.UrlReader;
  * 
  * @author Roman Vottner
  */
+@SuppressWarnings("unused")
 public class Parser
 {
 	/** The logger of this class **/
@@ -51,7 +52,7 @@ public class Parser
 	 */
 	protected boolean excludeWordTokens = false;
 	/** Tags that collect everything between opening and closing tags **/
-	protected List<String> compactTags = new ArrayList<String>();
+	protected List<String> compactTags = new ArrayList<>();
 
 	/**
 	 * If set to true will result in META tags to be removed from the token list
@@ -542,10 +543,10 @@ public class Parser
 	 * </p>
 	 * <p>
 	 * This method fetches the content of the URL provided and hands it over to
-	 * {@link #tokenize(String)} method.
+	 * {@link #tokenize(String, boolean)} method.
 	 * </p>
 	 * 
-	 * @param html
+	 * @param url
 	 *            A {@link String} representing the URL of the page to split up
 	 *            into tokens
 	 * @param formatText
@@ -632,8 +633,8 @@ public class Parser
 	protected List<Token> parseToTokens(String text, String replace,
 			String nonReplace, String splitAndInclude, boolean formatText)
 	{
-		List<Token> tokenList = new ArrayList<Token>();
-		Stack<Tag> stack = new Stack<Tag>();
+		List<Token> tokenList = new ArrayList<>();
+		Stack<Tag> stack = new Stack<>();
 		stack.add(new Tag(0, "", 0, 0, 0));
 
 		char[] replaceChars = replace.toCharArray();
@@ -863,9 +864,8 @@ public class Parser
 		String rawName = token.replaceAll("[<|/|>]", "");
 		if (rawName.contains(" "))
 			rawName = rawName.substring(0, rawName.indexOf(" "));
-		String tagName = "<" + (token.charAt(1) == '/' ? "/" : "") + rawName
+		return "<" + (token.charAt(1) == '/' ? "/" : "") + rawName
 				+ (token.charAt(token.length() - 2) == '/' ? " /" : "") + ">";
-		return tagName;
 	}
 
 	/**
@@ -1067,7 +1067,7 @@ public class Parser
 	protected boolean needsRemoval(Tag tag)
 	{
 		// TODO: better extensibility mechanism wanted
-		if (this.cleanComments && tag.isComment() || this.cleanDoctypes
+		return (this.cleanComments && tag.isComment() || this.cleanDoctypes
 				&& tag.getShortTag().toLowerCase().equals("!doctype")
 				|| this.cleanMeta
 				&& tag.getShortTag().toLowerCase().equals("meta")
@@ -1085,8 +1085,6 @@ public class Parser
 				|| this.cleanImages
 				&& tag.getShortTag().toLowerCase().equals("img")
 				|| this.cleanAnchors
-				&& tag.getShortTag().toLowerCase().equals("a"))
-			return true;
-		return false;
+				&& tag.getShortTag().toLowerCase().equals("a"));
 	}
 }

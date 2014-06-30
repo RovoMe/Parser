@@ -36,7 +36,7 @@ public abstract class Token
 	/** The number that the node ranks in its siblings **/
 	protected int sibNo = 0;
 	/** The set of node's children **/
-	protected List<Token> children = new ArrayList<Token>();
+	protected List<Token> children = new ArrayList<>();
 	/** The text value of the subtree rooted by the node **/
 	protected String subtreeText = null;
 	/** The ratio that the anchor text is included in subtreeText **/
@@ -52,15 +52,15 @@ public abstract class Token
 	protected int[][] matchedMatrix = null;
 	/** The set of nodes in the other DOM tree which have compared with the 
 	 * current node during the two DOM trees matching **/
-	protected LinkedList<Token> comparedNodes = new LinkedList<Token>();
+	protected LinkedList<Token> comparedNodes = new LinkedList<>();
 	/** The set of matching path flag matrixes between the node's children and 
 	 * comparedNode's children **/
-	protected LinkedList<int[][]> comparedMatrixes = new LinkedList<int[][]>();
+	protected LinkedList<int[][]> comparedMatrixes = new LinkedList<>();
 		
 	/**
 	 * <p>Initializes objects of subclasses and sets the text of this token.</p>
 	 * 
-	 * @param text Text of this token
+	 * @param html Text of this token
 	 */
 	public Token(String html)
 	{
@@ -89,26 +89,26 @@ public abstract class Token
 		{
 			// deep copy
 			this.no = node.no;
-			this.name = new String(node.name);
+			this.name = node.name;
 			if (node.text != null)
-				this.text = new String(node.text);
+				this.text = node.text;
 			if (node.html != null)
 				this.html = new StringBuilder(node.html);
 			this.level = node.level;
 			this.parentNo = node.parentNo;
 			this.sibNo = node.sibNo;
-			this.children = new ArrayList<Token>(node.children);
+			this.children = new ArrayList<>(node.children);
 			if (node.subtreeText != null)
-				this.subtreeText = new String(node.subtreeText);
+				this.subtreeText = node.subtreeText;
 			this.anchorTextRatio = node.anchorTextRatio;
 			this.punctNum = node.punctNum;
 			this.segNum = node.segNum;
 			if (node.matchedMatrix != null)
 				this.matchedMatrix = node.matchedMatrix;
 			if (node.comparedNodes != null)
-				this.comparedNodes = new LinkedList<Token>(node.comparedNodes);
+				this.comparedNodes = new LinkedList<>(node.comparedNodes);
 			if (node.comparedMatrixes != null)
-				this.comparedMatrixes = new LinkedList<int[][]>(node.comparedMatrixes);
+				this.comparedMatrixes = new LinkedList<>(node.comparedMatrixes);
 		}
 	}
 	
@@ -154,7 +154,8 @@ public abstract class Token
 	{
 		this.children.add(node);
 	}
-	
+
+	@SuppressWarnings("unused")
 	public void removeChild(Token node)
 	{
 		if (this.children.contains(node))
@@ -297,12 +298,7 @@ public abstract class Token
 			return false;
 		if (this.parentNo != node.parentNo)
 			return false;
-		if (this.sibNo != node.sibNo)
-			return false;
-		if (!this.children.equals(node.children))
-			return false;
-
-		return true;
+		return this.sibNo == node.sibNo && this.children.equals(node.children);
 	}
 	
 	
