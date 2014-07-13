@@ -253,7 +253,7 @@ public abstract class Token
 	public void setMatchedMatrix(int m[][]) { this.matchedMatrix = m; }
 
 	public LinkedList<int[][]> getComparedMatrix() { return this.comparedMatrixes; }
-	public void addComparedMatrixes(int[][] matrix) { this.comparedMatrixes.add(matrix); }
+	public void addComparedMatrices(int[][] matrix) { this.comparedMatrixes.add(matrix); }
 
 	public LinkedList<Token> getComparedNodes() { return this.comparedNodes;	}
 	public void addComparedNodes(Token node)
