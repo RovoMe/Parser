@@ -3,35 +3,31 @@ package at.rovo.parser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import at.rovo.common.UrlReader;
 
 /**
- * <p>
  * A parser reads a HTML page or its text representation as {@link String} into
  * memory and splits the text into {@link Token}s - namely {@link Tag}s and
  * {@link Word}s.
- * </p>
- * <p>
+ * <p/>
  * The tokens are stored within a {@link List} without adding any ancestor
  * information. The respective fields of the {@link Tag} instances are
  * initialized with 0 therefore.
- * </p>
- * <p>
+ * <p/>
  * The parser allows omitting specified HTML tags through invocation of the
  * according clean method. Cleaning a HTML tag removes the tag as well as the
  * content between the opening and closing tag, which might include further HTML
  * tags.
- * </p>
- * <p>
+ * <p/>
  * Words can be combined to a single word token by invoking
  * {@link #combineWords(boolean)} with a true parameter.
- * </p>
- * <p>
+ * <p/>
  * By default IFrame-, Script-, NoScript-, Link-, Style-, Form-, Doctype-Tags
  * and Comments are removed.
- * </p>
  * 
  * @author Roman Vottner
  */
@@ -39,7 +35,7 @@ import at.rovo.common.UrlReader;
 public class Parser
 {
 	/** The logger of this class **/
-	protected static Logger logger = LogManager.getLogger(Parser.class);
+	protected static Logger LOG = LogManager.getLogger(Parser.class);
 
 	/**
 	 * Specifies if words inside a tag should be combined into a single
@@ -103,6 +99,10 @@ public class Parser
 	 * list
 	 **/
 	private boolean cleanDoctypes = true;
+	/**
+	 * If set to true will include line breaks within the token sequence
+	 */
+	private boolean includeLineBreaks = false;
 
 	// Fields required during tag processing
 	/** The last HTML tag found **/
@@ -131,10 +131,8 @@ public class Parser
 	protected boolean tagFinished = true;
 
 	/**
-	 * <p>
 	 * Initializes a new instance and sets default values for certain fields
 	 * like the tags that are combined or tags that ignore parenting.
-	 * </p>
 	 */
 	public Parser()
 	{
@@ -155,9 +153,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Defines if a META tag should be removed from the parsed token list.
-	 * </p>
 	 * 
 	 * @param clean
 	 *            True specifies to remove META tags; false will keep them in
@@ -169,9 +165,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Defines if a IFRAME tag should be removed from the parsed token list.
-	 * </p>
 	 * 
 	 * @param clean
 	 *            True specifies to remove IFRAME tags; false will keep them in
@@ -183,9 +177,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Defines if a LINK tag should be removed from the parsed token list.
-	 * </p>
 	 * 
 	 * @param clean
 	 *            True specifies to remove LINK tags; false will keep them in
@@ -197,9 +189,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Defines if a SCRIPT tag should be removed from the parsed token list.
-	 * </p>
 	 * 
 	 * @param clean
 	 *            True specifies to remove SCRIPT tags; false will keep them in
@@ -215,9 +205,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Defines if a NOSCRIPT tag should be removed from the parsed token list.
-	 * </p>
 	 * 
 	 * @param clean
 	 *            True specifies to remove NOSCRIPT tags; false will keep them
@@ -233,9 +221,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Defines if a STYLE tag should be removed from the parsed token list.
-	 * </p>
 	 * 
 	 * @param clean
 	 *            True specifies to remove STYLE tags; false will keep them in
@@ -251,9 +237,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Defines if a FORM tag should be removed from the parsed token list.
-	 * </p>
 	 * 
 	 * @param clean
 	 *            True specifies to remove FORM tags; false will keep them in
@@ -269,9 +253,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Defines if a IMG tag should be removed from the parsed token list.
-	 * </p>
 	 * 
 	 * @param clean
 	 *            True specifies to remove IMG tags; false will keep them in the
@@ -283,9 +265,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Defines if a A tag should be removed from the parsed token list.
-	 * </p>
 	 * 
 	 * @param clean
 	 *            True specifies to remove A tags; false will keep them in the
@@ -301,9 +281,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Defines if a comments should be removed from the parsed token list.
-	 * </p>
 	 * 
 	 * @param clean
 	 *            True specifies to remove comments; false will keep them in the
@@ -319,9 +297,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Defines if DOCTYPE tags should be removed from the parsed token list.
-	 * </p>
 	 * 
 	 * @param clean
 	 *            True specifies to remove DOCTYPE tags; false will keep them in
@@ -333,9 +309,21 @@ public class Parser
 	}
 
 	/**
-	 * <p>
+	 * If set to true will include linebreak symbols within the token sequence,
+	 * else linebreak symbols will be omitted.
+	 *
+	 * @param includeLineBreaks
+	 *            Tue specifies to include line breaks within the returned token
+	 *            sequence, false will omit those line breaks. By default line
+	 *            breaks will be omitted
+	 */
+	public void setIncludeLineBreaks(boolean includeLineBreaks)
+	{
+		this.includeLineBreaks = includeLineBreaks;
+	}
+
+	/**
 	 * Returns if META tags are removed from the token list.
-	 * </p>
 	 * 
 	 * @return True if META tags are removed from the token list; false
 	 *         otherwise
@@ -346,9 +334,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Returns if IFRAME tags are removed from the token list.
-	 * </p>
 	 * 
 	 * @return True if IFRAME tags are removed from the token list; false
 	 *         otherwise
@@ -359,9 +345,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Returns if LINK tags are removed from the token list.
-	 * </p>
 	 * 
 	 * @return True if LINK tags are removed from the token list; false
 	 *         otherwise
@@ -372,9 +356,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Returns if SCRIPT tags are removed from the token list.
-	 * </p>
 	 * 
 	 * @return True if SCRIPT tags are removed from the token list; false
 	 *         otherwise
@@ -385,9 +367,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Returns if NOSCRIPT tags are removed from the token list.
-	 * </p>
 	 * 
 	 * @return True if NOSCRIPT tags are removed from the token list; false
 	 *         otherwise
@@ -398,9 +378,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Returns if STYLE tags are removed from the token list.
-	 * </p>
 	 * 
 	 * @return True if STYLE tags are removed from the token list; false
 	 *         otherwise
@@ -411,9 +389,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Returns if FORM tags are removed from the token list.
-	 * </p>
 	 * 
 	 * @return True if FORM tags are removed from the token list; false
 	 *         otherwise
@@ -424,9 +400,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Returns if IMG tags are removed from the token list.
-	 * </p>
 	 * 
 	 * @return True if IMG tags are removed from the token list; false otherwise
 	 */
@@ -436,9 +410,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Returns if A tags are removed from the token list.
-	 * </p>
 	 * 
 	 * @return True if A tags are removed from the token list; false otherwise
 	 */
@@ -448,9 +420,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Returns if comments are removed from the token list.
-	 * </p>
 	 * 
 	 * @return True if comments are removed from the token list; false otherwise
 	 */
@@ -460,9 +430,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Returns if DOCTYPE tags are removed from the token list.
-	 * </p>
 	 * 
 	 * @return True if DOCTYPE tags are removed from the token list; false
 	 *         otherwise
@@ -473,14 +441,11 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Specifies if words between tags should be combined to one single object
 	 * (true) or if they should be kept separated in the resulting token list
 	 * (false).
-	 * </p>
-	 * <p>
+	 * <p/>
 	 * By default words will not get combined.
-	 * </p>
 	 * 
 	 * @param combineWords
 	 *            Set to true will combine words between tags to a single word
@@ -492,10 +457,8 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Returns if words between tags should be combined to a single word or if
 	 * they are kept separated.
-	 * </p>
 	 * 
 	 * @return True if words between tags are being combined to a single word;
 	 *         false otherwise
@@ -506,10 +469,8 @@ public class Parser
 	}
 	
 	/**
-	 * <p>
 	 * Returns if words are not included within the list of parsed tokens. If
 	 * they are excluded, words can be found in {@link Tag#getText()} method.
-	 * </p>
 	 * 
 	 * @return True if words are excluded from the token list, false otherwise
 	 */
@@ -519,10 +480,8 @@ public class Parser
 	}
 	
 	/**
-	 * <p>
 	 * Resets the state of the currently running Parser instance to match the 
 	 * state of a new instance.
-	 * </p>
 	 */
 	protected void reset()
 	{
@@ -537,14 +496,11 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Builds a {@link List} of {@link Token}s representing the page referenced
 	 * by the URL provided.
-	 * </p>
-	 * <p>
+	 * <p/>
 	 * This method fetches the content of the URL provided and hands it over to
 	 * {@link #tokenize(String, boolean)} method.
-	 * </p>
 	 * 
 	 * @param url
 	 *            A {@link String} representing the URL of the page to split up
@@ -557,7 +513,7 @@ public class Parser
 	{
 		if (url != null && !url.equals(""))
 		{
-			logger.debug("Reading page from URL: {}", url);
+			LOG.debug("Reading page from URL: {}", url);
 
 			UrlReader reader = new UrlReader();
 			String html = reader.readPage(url);
@@ -569,9 +525,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Builds a {@link List} of {@link Token}s representing the provided string.
-	 * </p>
 	 * 
 	 * @param html
 	 *            A {@link String} representing the full HTML code of a web site
@@ -588,8 +542,8 @@ public class Parser
 		this.reset();
 		
 		// split the html into a token-array
-		logger.debug("Splitting page");
-		logger.trace("Received HTML: '{}'", html);
+		LOG.debug("Splitting page");
+		LOG.debug("Received HTML: '{}'", html);
 
 		// parse and process the tokens from the HTML file
 		List<Token> tokenList = this.parseToTokens(html, " ", ">", "<",	formatText);
@@ -609,11 +563,9 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Parses the HTML content into tokens of words and tags and calls
 	 * {@link #processTokens(String, List, Stack, boolean)} to further process
 	 * these tokens.
-	 * </p>
 	 * 
 	 * @param text
 	 *            The HTML text to parse
@@ -645,6 +597,15 @@ public class Parser
 		boolean found = false;
 		for (int i = 0; i < text.length(); i++)
 		{
+			if (this.includeLineBreaks)
+			{
+				if (text.charAt(i) == '\n' || text.charAt(i) == '\r')
+				{
+					tokenList.add(new LineBreak());
+					LOG.debug("\tadded LineBreak");
+					continue;
+				}
+			}
 			for (char c : replaceChars)
 			{
 				// we found a separating character - split the token at this
@@ -706,10 +667,8 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Processes parsed tokens. Processing involves filtering unneeded tags and
 	 * building a DOM tree.
-	 * </p>
 	 * 
 	 * @param token
 	 *            The current token that needs to be processed
@@ -769,7 +728,7 @@ public class Parser
 			if (token.endsWith(">"))
 				tag.setName(this.getTagName(tag.getHTML()));
 
-			logger.trace("Processing new Tag: '{}'", this.tag.getHTML());
+			LOG.trace("Processing new Tag: '{}'", this.tag.getHTML());
 			
 			this.checkTagValidity(this.tag, tokenList, stack);
 		}
@@ -782,7 +741,7 @@ public class Parser
 			if (token.endsWith(">"))
 				this.tag.setName(this.getTagName(this.tag.getHTML()));
 			
-			logger.trace("Appending '{}' to Tag: '{}'", token, this.tag.getHTML());
+			LOG.trace("Appending '{}' to Tag: '{}'", token, this.tag.getHTML());
 
 			this.checkTagValidity(this.tag, tokenList, stack);
 		}
@@ -791,7 +750,7 @@ public class Parser
 		{
 			// as appending content to an already valid tag is not possible,
 			// we have to set the content manually
-			logger.trace("Compacting Tag with '{}'", token);
+			LOG.trace("Compacting Tag with '{}'", token);
 			this.tag.setHTML(this.tag.getHTML() + " " + token);
 			// check if the end of the tag sequence was reached
 			if (this.tag.getHTML().endsWith(this.compact + ">"))
@@ -818,14 +777,14 @@ public class Parser
 					}
 					// check if the number of opening tags is less or equal to
 					// the number of closing tags - sometimes an opening script
-					// is defined as <s+cript while it has a default closing tag
+					// is defined as <script while it has a default closing tag
 					// within a documentWrite() method
 					if (scriptCount > endCount)
 						return;
 				}
 				if (token.endsWith(">"))
 					this.tag.setName(this.getTagName(this.tag.getHTML()));
-				logger.trace("Compacting finished for Tag: '{}'", this.tag);
+				LOG.trace("Compacting finished for Tag: '{}'", this.tag);
 				this.checkTagValidity(this.tag, tokenList, stack);
 				this.compact = null;
 				this.tagFinished = true;
@@ -834,7 +793,7 @@ public class Parser
 		}
 		else
 		{
-			logger.trace("Processing new Word: '{}'", token);
+			LOG.trace("Processing new Word: '{}'", token);
 			// preceding tags are all closed and the token doesn't start with
 			// an opening tag symbol - so we have a word here
 			int numWords = this.addWord(token, this.id, stack, tokenList, formatText);
@@ -849,10 +808,8 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Returns a simple representation of the HTML tag which omits everything
 	 * but the opening and closing-type and the name of the HTML tag.
-	 * </p>
 	 * 
 	 * @param token
 	 *            The HTML text of the tag
@@ -869,9 +826,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Creates a new HTML tag.
-	 * </p>
 	 * 
 	 * @param token
 	 *            The HTML text of the tag to create
@@ -899,9 +854,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Checks if a tag is allowed to be added to the list of parsed tokens.
-	 * </p>
 	 * 
 	 * @param tag
 	 *            The tag to check for its validity to be added to the list of
@@ -916,14 +869,14 @@ public class Parser
 		// check if the tag is complete
 		if (tag.isValid())
 		{
-			logger.trace("Valid tag: '{}'\ntokenList: '{}'", tag, tokenList);
+			LOG.trace("Valid tag: '{}'\ntokenList: '{}'", tag, tokenList);
 			// remove the flag
 			this.tagFinished = true;
 
 			// check if we are allowed to add the tag
 			if (!this.needsRemoval(tag))
 			{
-				logger.trace("Tag '{}' survived removal", tag);
+				LOG.trace("Tag '{}' survived removal", tag);
 				// create a new tag object with ancestor and sibling
 				// informations
 				try
@@ -933,24 +886,22 @@ public class Parser
 
 					newTag.setIndex(this.tagPos++);
 
-					logger.debug("\tadded Tag: '{}'\n", tag);
+					LOG.debug("\tadded Tag: '{}'", tag);
 
 					this.metaData.checkTag(newTag);
 				}
 				catch (InvalidAncestorException iaEx)
 				{
-					logger.error("No valid anchestor found for tag: '{}'", tag);
-					logger.catching(iaEx);
+					LOG.error("No valid anchestor found for tag: '{}'", tag);
+					LOG.catching(Level.ERROR, iaEx);
 				}
 			}
 		}
 	}
 
 	/**
-	 * <p>
 	 * Adds a word to the list of parsed tokens and provides the possibility to
 	 * format a word if <em>formatText</em> is set to true.
-	 * </p>
 	 * 
 	 * @param word
 	 *            The word to add to the list of parsed tokens
@@ -990,10 +941,8 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Adds either a new word to the list of parsed tokens or appends the word
 	 * to the last added word if {@link #combineWords} is set to true.
-	 * </p>
 	 * 
 	 * @param word
 	 *            The word to add
@@ -1019,7 +968,7 @@ public class Parser
 		}
 		// check if this word is the first word after a HTML tag and if we
 		// should combine words to preceding words
-		else if (!this.combineWords || (this.combineWords && 
+		else if (!this.combineWords || (
 				(this.lastWord == null || this.lastWord.getText() == null)))
 		{
 			if (this.lastWord == null)
@@ -1056,9 +1005,7 @@ public class Parser
 	}
 
 	/**
-	 * <p>
 	 * Checks if a tag needs to be removed.
-	 * </p>
 	 * 
 	 * @param tag
 	 *            The tag which should be checked for removal
