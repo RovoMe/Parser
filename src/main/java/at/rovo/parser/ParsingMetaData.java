@@ -1,5 +1,6 @@
 package at.rovo.parser;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -10,13 +11,14 @@ import org.apache.logging.log4j.Logger;
 
 public class ParsingMetaData
 {
-	private static Logger logger = LogManager.getLogger(ParsingMetaData.class);
+	private final static Logger LOG = LogManager.getLogger(MethodHandles.lookup().lookupClass());
+
 	private boolean isTitle = false;
 	private String title = "";
 	private boolean isAuthorName = false;
-	private List<String> authorName = new ArrayList<String>();
+	private List<String> authorName = new ArrayList<>();
 	private boolean isAuthor = false;
-	private List<String> authors = new ArrayList<String>();
+	private List<String> authors = new ArrayList<>();
 	private boolean isDate = false;
 	private String date = "";
 	private boolean isByline = false;
@@ -57,11 +59,15 @@ public class ParsingMetaData
 		"March|April|June|July|August|September|October|November|December)[\\.|,]? "+
 		"\\d{1,2}(?:st|nd|rd|th)?[,]? \\d{2,4}))");
 		Matcher matcher = pattern.matcher(this.date);
-		List<String> possibleDates = new ArrayList<String>();
+		List<String> possibleDates = new ArrayList<>();
 		while (matcher.find())
+		{
 			possibleDates.add(matcher.group());
+		}
 		if (possibleDates.isEmpty())
+		{
 			return this.date;
+		}
 		return possibleDates.get(0);
 	}
 	
@@ -79,22 +85,26 @@ public class ParsingMetaData
 	{
 		if (tag.getHTML().equals("<title>"))
 		{
-			logger.trace("Found title tag");
+			LOG.trace("Found title tag");
 			isTitle = true;
 			if (tag.getLevel() > 0)
+			{
 				foundLevel = tag.getLevel();
+			}
 		}
 		else if (tag.getHTML().equals("</title>"))
 		{
-			logger.trace("Found title end tag");
+			LOG.trace("Found title end tag");
 			isTitle = false;
 		}
 		
 		if (tag.getHTML().contains("byline"))
 		{
-			logger.trace("Found byline");
+			LOG.trace("Found byline");
 			if (tag.getLevel() > 0)
+			{
 				foundLevel = tag.getLevel();
+			}
 			isByline = true;
 			byline = tag.getHTML();
 			bylineTag = tag.getShortTag();
@@ -103,41 +113,47 @@ public class ParsingMetaData
 		
 		if ((tag.isOpeningTag() && tag.getHTML().contains("\"date")))
 		{
-			logger.trace("Found tag containing date");
+			LOG.trace("Found tag containing date");
 			if (tag.getLevel() > 0)
+			{
 				foundLevel = tag.getLevel();
+			}
 			isDate = true;
 		}
 		else if (isDate)
 		{
-			logger.trace("Found end of date block");
+			LOG.trace("Found end of date block");
 			isDate = false;
 		}
 		
 		if ((tag.isOpeningTag() && tag.getHTML().contains("\"authorName\"")))
 		{
-			logger.trace("Found tag containing authorName");
+			LOG.trace("Found tag containing authorName");
 			if (tag.getLevel() > 0)
+			{
 				foundLevel = tag.getLevel();
+			}
 			authorName.add("");
 			isAuthorName = true;
 		}
 		else if (tag.isOpeningTag() && tag.getHTML().contains("\"author\""))
 		{
-			logger.trace("Found tag containing author");
+			LOG.trace("Found tag containing author");
 			if (tag.getLevel() > 0)
+			{
 				foundLevel = tag.getLevel();
+			}
 			authors.add("");
 			isAuthor = true;
 		}
 		else if (isAuthorName && !tag.isOpeningTag())
 		{
-			logger.trace("Found end of block containing authorName");
+			LOG.trace("Found end of block containing authorName");
 			isAuthorName = false;
 		}
 		else if (isAuthor && !tag.isOpeningTag())
 		{
-			logger.trace("Found end of block containing author");
+			LOG.trace("Found end of block containing author");
 			isAuthor = false;
 		}
 	}
@@ -147,61 +163,91 @@ public class ParsingMetaData
 	{
 		if (isTitle)
 		{
-			logger.trace("Adding title: '{}'", word);
+			LOG.trace("Adding title: '{}'", word);
 			if (foundLevel > 0 && foundLevel+1 == word.getLevel() || foundLevel < 0)
 			{
 				if (!combineWords)
-					title += " "+word.getText();
+				{
+					title += " " + word.getText();
+				}
 				else
+				{
 					title = word.getText();
+				}
 			}
 			else if (foundLevel > 0)
+			{
 				this.clear();
+			}
 		}
 		if (isDate)
 		{
-			logger.trace("Adding date: '{}'", word);
+			LOG.trace("Adding date: '{}'", word);
 			if (foundLevel > 0 && foundLevel+1 == word.getLevel() || foundLevel < 0)
 			{
 				if (!combineWords)
-					date += " "+word.getText();
+				{
+					date += " " + word.getText();
+				}
 				else
+				{
 					date = word.getText();
+				}
 			}
 			else if (foundLevel > 0)
+			{
 				this.clear();
+			}
 		}
 		if (isAuthorName)
 		{
-			logger.trace("Adding authorName: '{}'", word);
+			LOG.trace("Adding authorName: '{}'", word);
 			if (foundLevel > 0  && foundLevel+1 == word.getLevel() || foundLevel < 0)
 			{
 				if (!combineWords)
-					authorName.set(authorName.size()-1, (authorName.get(authorName.size()-1)+" "+word.getText()).trim());
+				{
+					authorName.set(authorName.size() - 1, (authorName.get(authorName.size() - 1) + " " + word.getText()).trim());
+				}
 				else
-					authorName.set(authors.size()-1, word.getText());
+				{
+					authorName.set(authors.size() - 1, word.getText());
+				}
 			}
 			else if (foundLevel > 0)
+			{
 				this.clear();
+			}
 		}
 		if (isAuthor)
 		{
-			logger.trace("Adding author: '{}'", word);
+			LOG.trace("Adding author: '{}'", word);
 			if (foundLevel > 0 && foundLevel+1 == word.getLevel() || foundLevel < 0)
+			{
 				if (!combineWords)
-					authors.set(authors.size()-1, (authors.get(authors.size()-1)+" "+word.getText()).trim());
+				{
+					authors.set(authors.size() - 1, (authors.get(authors.size() - 1) + " " + word.getText()).trim());
+				}
 				else
-					authors.set(authors.size()-1, word.getText());
+				{
+					authors.set(authors.size() - 1, word.getText());
+				}
+			}
 			else if (foundLevel > 0)
+			{
 				this.clear();
+			}
 		}
 		if (isByline)
 		{
-			logger.trace("Adding byline: '{}'", word);
+			LOG.trace("Adding byline: '{}'", word);
 			if (foundLevel > 0 && foundLevel+1 == word.getLevel() || foundLevel < 0)
-				byline += " "+word.getText();
+			{
+				byline += " " + word.getText();
+			}
 			else if (foundLevel > 0)
+			{
 				this.clear();
+			}
 		}
 	}
 	

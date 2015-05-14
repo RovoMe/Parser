@@ -36,9 +36,12 @@ http://logging.apache.org/log4j/2.x/manual/layouts.html
       <PatternLayout pattern="%d{HH:mm:ss} %p %C{1}.%M() - %m%n"/>
       <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
     </Console>
-    <File name="ParserFile" fileName="${parserFile}" append="false">
+    <File name="ParserFile" fileName="${parserFile}" append="true">
       <PatternLayout pattern="%d{HH:mm:ss} %p %C{1}.%M() - %m%n"/>
     </File>
+    <Async name="ErrorLog">
+      <AppenderRef ref="ParserFile"/>"
+    </Async>
   </appenders>
   
   <loggers>	
@@ -52,10 +55,12 @@ http://logging.apache.org/log4j/2.x/manual/layouts.html
   	  <appender-ref ref="ParserFile"/>
   	</logger>
   	<logger name="at.rovo.parser" level="info" additivity="true">
+      <appender-ref ref="ParserFile"/>
   	  <appender-ref ref="Console"/>
   	</logger>
     <root level="error">
       <appender-ref ref="Error"/>
+      <appender-ref ref="ErrorLog"/>
     </root>
   </loggers>
 </configuration>

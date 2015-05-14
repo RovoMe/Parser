@@ -11,10 +11,8 @@ import java.nio.file.Paths;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import at.rovo.parser.DOMParser;
 import at.rovo.parser.ParseResult;
@@ -28,24 +26,9 @@ import at.rovo.parser.Word;
 
 public class ParserTest
 {
-	/** The logger of this class **/
-	protected static Logger logger;
+	protected static Logger logger = LogManager.getLogger(ParserTest.class);
 	
 	private String html = "";
-		
-	@BeforeClass
-	public static void initLogger() throws URISyntaxException
-	{
-		String path = ParserTest.class.getResource("/log/log4j2-test.xml").toURI().getPath();
-		System.setProperty("log4j.configurationFile", path);
-		logger = LogManager.getLogger(ParserTest.class);
-	}
-	
-	@AfterClass
-	public static void cleanLogger()
-	{
-		System.clearProperty("log4j.configurationFile");
-	}
 	
 	@Before
 	public void loadTestPage() throws IOException, URISyntaxException

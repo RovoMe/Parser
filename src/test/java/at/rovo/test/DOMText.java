@@ -3,13 +3,10 @@ package at.rovo.test;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URISyntaxException;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import at.rovo.parser.DOMParser;
 import at.rovo.parser.ParseResult;
@@ -21,21 +18,7 @@ import at.rovo.parser.Word;
 
 public class DOMText
 {
-	private static Logger logger;
-	
-	@BeforeClass
-	public static void initLogger() throws URISyntaxException
-	{
-		String path = DOMText.class.getResource("/log/log4j2-test.xml").toURI().getPath();
-		System.setProperty("log4j.configurationFile", path);
-		logger = LogManager.getLogger(DOMText.class);
-	}
-	
-	@AfterClass
-	public static void cleanLogger()
-	{
-		System.clearProperty("log4j.configurationFile");
-	}
+	private final static Logger logger = LogManager.getLogger(DOMText.class);
 	
 	@Test
 	public void testDOMGeneration()
@@ -139,10 +122,10 @@ public class DOMText
 		Assert.assertEquals(text4.split(" ").length, body.getSegNum());
 		Assert.assertEquals(text11.split(" ").length, p.getSegNum());
 		
-		Assert.assertEquals((text0.length() - text0.replaceAll("[,|;|.]", "").length()), html.getPunctNum());
-		Assert.assertEquals((text1.length() - text1.replaceAll("[,|;|.]", "").length()), head.getPunctNum());
-		Assert.assertEquals((text4.length() - text4.replaceAll("[,|;|.]", "").length()), body.getPunctNum());
-		Assert.assertEquals((text11.length() - text11.replaceAll("[,|;|.]", "").length()), p.getPunctNum());
+		Assert.assertEquals((text0.length() - text0.replaceAll("[,|;.]", "").length()), html.getPunctNum());
+		Assert.assertEquals((text1.length() - text1.replaceAll("[,|;.]", "").length()), head.getPunctNum());
+		Assert.assertEquals((text4.length() - text4.replaceAll("[,|;.]", "").length()), body.getPunctNum());
+		Assert.assertEquals((text11.length() - text11.replaceAll("[,|;.]", "").length()), p.getPunctNum());
 	}
 	
 	@Test

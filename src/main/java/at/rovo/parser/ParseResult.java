@@ -53,14 +53,16 @@ public class ParseResult
 	
 	public Set<String> getAuthors()
 	{
-		Set<String> setAuthors = new TreeSet<String>();
+		Set<String> setAuthors = new TreeSet<>();
 		if (this.authorName != null && !this.authorName.isEmpty() && 
 				!this.authorName.get(0).trim().equals(""))
 		{
 			for (String author : this.authorName)
 			{
 				if (!author.equals(""))
+				{
 					setAuthors.add(author);
+				}
 			}
 		}
 		else
@@ -68,7 +70,9 @@ public class ParseResult
 			for (String author : this.authors)
 			{
 				if (!author.equals(""))
+				{
 					setAuthors.add(author);
+				}
 			}
 		}
 		return setAuthors;
@@ -92,9 +96,13 @@ public class ParseResult
 	public void setPublishDate(String date)
 	{
 		if (date.startsWith("published") || date.startsWith("Published"))
-			date = date.substring("published".length()+1);
+		{
+			date = date.substring("published".length() + 1);
+		}
 		if (date.startsWith("published:") || date.startsWith("Published:"))
-			date = date.substring("published:".length()+1);
+		{
+			date = date.substring("published:".length() + 1);
+		}
 		this.date = date;
 	}
 	

@@ -5,12 +5,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * This class represents an abstraction of an HTML code. A token is either a
- * {@link Tag} or a {@link Word} and provides basic methods for both subclasses.
- * 
+ * This class represents an abstraction of an HTML code. A token is either a {@link Tag} or a {@link Word} and provides
+ * basic methods for both subclasses.
+ *
+ * @author Roman Vottner
  * @see Tag
  * @see Word
- * @author Roman Vottner
  */
 public abstract class Token 
 {

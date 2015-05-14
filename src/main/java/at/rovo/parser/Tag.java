@@ -1,24 +1,19 @@
 package at.rovo.parser;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 /**
+ * Represents a HTML or XML tag which starts with a '&lt;' character and ends with a '>' character.
  * <p>
- * Represents a HTML or XML tag which starts with a '&lt;' character and ends
- * with a '>' character.
- * </p>
- * <p>
- * This class does not provide any methods to retrieve any attribute
- * informations of the element like the href attribute in &lt;a href="..."> or
- * the class attribute in &lt;div class="..."> tags.
- * </p>
- * 
+ * This class does not provide any methods to retrieve any attribute informations of the element like the href attribute
+ * in &lt;a href="..."> or the class attribute in &lt;div class="..."> tags.
+ *
  * @author Roman Vottner
  */
 public class Tag extends Token
@@ -26,30 +21,25 @@ public class Tag extends Token
 	/** The logger of this class **/
 	protected static Logger logger = LogManager.getLogger(Tag.class);
 	/**
-	 * Used by TSReC parser. Will contain list of appended tokens that will
-	 * appear as sub-elements of this tokens. This are not exactly children per
-	 * se as TSReC will append Words and Tags that do not break the text flow.
+	 * Used by TSReC parser. Will contain list of appended tokens that will appear as sub-elements of this tokens. This
+	 * are not exactly children per se as TSReC will append Words and Tags that do not break the text flow.
 	 **/
-	private List<Token> appendedTokens = new ArrayList<Token>();
+	private List<Token> appendedTokens = new ArrayList<>();
 	/** will contain the attributes of this tag **/
 	private Hashtable<String, String> attributes = null;
 
 	/**
-	 * <p>
-	 * Initializes a new instance of a HTML tag. The parameter is the full
-	 * content of this tag. This means if you need to specify f.e. a div element
-	 * with a class attribute you can instantiate a new tag like follows:
-	 * </p>
+	 * Initializes a new instance of a HTML tag. The parameter is the full content of this tag. This means if you need
+	 * to specify f.e. a div element with a class attribute you can instantiate a new tag like follows:
+	 * <p/>
 	 * <code>Tag div = new Tag("&lt;div class=\"...\">");</code>
-	 * <p>
-	 * or start a tag and append the rest later via invoking
-	 * {@link #append(String)}
-	 * </p>
-	 * <code>Tag div = new Tag("&lt;div");
-	 * <br/>div.append(" class=\"...\">");</code>
-	 * 
+	 * <p/>
+	 * or start a tag and append the rest later via invoking {@link #append(String)}
+	 * <p/>
+	 * <code>Tag div = new Tag("&lt;div"); <br/>div.append(" class=\"...\">");</code>
+	 *
 	 * @param text
-	 *            Content of the tag
+	 * 		Content of the tag
 	 */
 	public Tag(String text)
 	{
@@ -62,13 +52,10 @@ public class Tag extends Token
 	}
 
 	/**
-	 * <p>
-	 * Creates a new instance of a tag through deep copying the data of the
-	 * other tag.
-	 * </p>
-	 * 
+	 * Creates a new instance of a tag through deep copying the data of the other tag.
+	 *
 	 * @param node
-	 *            The tag to copy
+	 * 		The tag to copy
 	 */
 	public Tag(Token node)
 	{
@@ -98,15 +85,12 @@ public class Tag extends Token
 	}
 
 	/**
-	 * <p>
-	 * Appends further text to a tag unless it is not closed yet. You can test
-	 * if a tag is already closed by invoking the {@link #isClosed()} method.
-	 * </p>
-	 * 
+	 * Appends further text to a tag unless it is not closed yet.
+	 *
 	 * @param text
-	 *            The text which should be added to the tag. Note that appending
-	 *            occurs inside the '&lt;' and '>' parts of the tag and not
-	 *            outside!
+	 * 		The text which should be added to the tag. Note that appending occurs inside the '&lt;' and '>' parts of the
+	 * 		tag and not outside!
+	 *
 	 * @return The current content of the tag
 	 */
 	String append(String text)
@@ -120,12 +104,10 @@ public class Tag extends Token
 	}
 
 	/**
-	 * <p>
 	 * Adds a token as a sub element to this tag.
-	 * </p>
-	 * 
+	 *
 	 * @param token
-	 *            The token to add as a sub element to this tag
+	 * 		The token to add as a sub element to this tag
 	 */
 	void append(Token token)
 	{
@@ -133,11 +115,8 @@ public class Tag extends Token
 	}
 
 	/**
-	 * <p>
-	 * Returns all sub elements for this tag. Note that this elements are only
-	 * available for a TSReC parser.
-	 * </p>
-	 * 
+	 * Returns all sub elements for this tag. Note that this elements are only available for a TSReC parser.
+	 *
 	 * @return The sub elements for this tag
 	 */
 	public List<Token> getSubElements()
@@ -146,25 +125,14 @@ public class Tag extends Token
 	}
 
 	/**
-	 * <p>
 	 * Determines if this tag is valid or not.
-	 * </p>
 	 * <p>
-	 * A tag is valid if it matches either of the following patterns:
-	 * </p>
-	 * <ul>
-	 * <li><code>&lt;!-- ... --></code></li>
-	 * <li><code>&lt;![ ... ]]></code></li>
-	 * <li><code>&lt; ... ></code></li>
-	 * </ul>
-	 * <p>
+	 * A tag is valid if it matches either of the following patterns: <ul> <li><code>&lt;!-- ... --></code></li>
+	 * <li><code>&lt;![ ... ]]></code></li> <li><code>&lt; ... ></code></li> </ul>
 	 * Note that this method does not check for tags inside of comments!
-	 * </p>
 	 * <p>
-	 * If a tag is valid and not a comment, its attributes are extracted
-	 * automatically.
-	 * </p>
-	 * 
+	 * If a tag is valid and not a comment, its attributes are extracted automatically.
+	 *
 	 * @return true if the tag is valid; false otherwise
 	 */
 	boolean isValid()
@@ -206,12 +174,9 @@ public class Tag extends Token
 		}
 		return ret;
 	}
-	
+
 	/**
-	 * <p>
-	 * After a tag validated to true it sets all attributes assigned to the
-	 * tag.
-	 * </p>
+	 * After a tag validated to true it sets all attributes assigned to the tag.
 	 */
 	private void setAttributes()
 	{
@@ -228,7 +193,7 @@ public class Tag extends Token
 
 		// split the attributes into tokens
 		String[] tokens = html.split(" ");
-		this.attributes = new Hashtable<String, String>();
+		this.attributes = new Hashtable<>();
 		String currArg = null;
 		// omit the first token as it is the tag-name
 		for (int i = 1; i < tokens.length; i++)
@@ -268,14 +233,12 @@ public class Tag extends Token
 	}
 
 	/**
-	 * <p>
 	 * Removes characters that indicate a tag ending.
-	 * </p>
-	 * 
+	 *
 	 * @param value
-	 *            The token to check for tag-endings
-	 * @return The corrected token if it contained a tag ending symbol, else the
-	 *         origin token
+	 * 		The token to check for tag-endings
+	 *
+	 * @return The corrected token if it contained a tag ending symbol, else the origin token
 	 */
 	private static String checkToken(String value)
 	{
@@ -288,9 +251,7 @@ public class Tag extends Token
 	}
 
 	/**
-	 * <p>
 	 * Returns all defined attributes and their content for this tag.
-	 * </p>
 	 * 
 	 * @return All defined attributes including their content
 	 */
@@ -300,12 +261,11 @@ public class Tag extends Token
 	}
 
 	/**
-	 * <p>
 	 * Returns the content for a certain attribute.
-	 * </p>
-	 * 
+	 *
 	 * @param attribute
-	 *            The attribute whose content should be returned
+	 * 		The attribute whose content should be returned
+	 *
 	 * @return The content of the specified attribute
 	 */
 	public String getAttribute(String attribute)
@@ -316,14 +276,12 @@ public class Tag extends Token
 	}
 
 	/**
-	 * <p>
 	 * Adds or replaces an existing attribute with the provided content.
-	 * </p>
-	 * 
+	 *
 	 * @param attribute
-	 *            The attribute to add or modify
+	 * 		The attribute to add or modify
 	 * @param content
-	 *            The content of the attribute to add or modify
+	 * 		The content of the attribute to add or modify
 	 */
 	public void setAttribute(String attribute, String content)
 	{
@@ -331,88 +289,52 @@ public class Tag extends Token
 	}
 
 	/**
-	 * <p>
-	 * Determines if the tag includes an inline closing symbol &lt;... />, f.e.
-	 * &lt;div /> or &lt;br/>.
-	 * </p>
-	 * 
-	 * @return true if the tag contains an inline closing symbol; false
-	 *         otherwise
+	 * Determines if the tag includes an inline closing symbol &lt;... />, f.e. &lt;div /> or &lt;br/>.
+	 *
+	 * @return true if the tag contains an inline closing symbol; false otherwise
 	 */
-	public boolean isInlineCloseingTag()
+	public boolean isInlineClosingTag()
 	{
-		if (this.html.toString().endsWith("/>"))
-			return true;
-		return false;
+		return this.html.toString().endsWith("/>");
 	}
 
 	/**
-	 * <p>
 	 * Determines if this tag is a opening tag
-	 * </p>
 	 * <p>
-	 * Opening tags do no include any of the following patterns:
-	 * </p>
-	 * <ul>
-	 * <li><code>&lt;/...></code>, f.e. <code>&lt;/div></code></li>
-	 * <li><code>--></code></li>
-	 * <li><code>]]></code></li>
-	 * </ul>
-	 * 
+	 * Opening tags do no include any of the following patterns: <ul> <li><code>&lt;/...></code>, f.e.
+	 * <code>&lt;/div></code></li> <li><code>--></code></li> <li><code>]]></code></li> </ul>
+	 *
 	 * @return true if this tag is an opening tag; false otherwise
 	 */
 	public boolean isOpeningTag()
 	{
-		if (this.html.toString().startsWith("</") 
+		return !(this.html.toString().startsWith("</")
 				|| this.html.toString().endsWith("-->")	
-				|| this.html.toString().endsWith("]]>"))
-			return false;
-		return true;
+				|| this.html.toString().endsWith("]]>"));
 	}
 
 	/**
-	 * <p>
-	 * Determines if this tag is a comment. A comment matches either of the
-	 * following patterns:
-	 * </p>
-	 * <ul>
-	 * <li><code>&lt;!-- ... --></code></li>
-	 * <li><code>&lt;![ ... ]]></code></li>
-	 * </ul>
-	 * 
+	 * Determines if this tag is a comment. A comment matches either of the following patterns:
+	 * <ul> <li><code>&lt;!-- ... --></code></li> <li><code>&lt;![ ... ]]></code></li> </ul>
+	 *
 	 * @return true if this tag is a comment; false otherwise
 	 */
 	public boolean isComment()
 	{
-		if (this.html == null)
-			return false;
-		if (this.html.toString().startsWith("<!--") 
-				|| this.html.toString().endsWith("-->"))
-			return true;
-		if (this.html.toString().startsWith("<![") 
-				|| this.html.toString().endsWith("]]>"))
-			return true;
-		return false;
+		return this.html != null
+				&& (this.html.toString().startsWith("<!--")
+					|| this.html.toString().endsWith("-->")
+					|| this.html.toString().startsWith("<![")
+					|| this.html.toString().endsWith("]]>"));
 	}
 
 	/**
+	 * Reflects the type of HTML tag this tag represents </> The type of an HTML tag is the first part of the tag, f.e.
+	 * the type of <code>&lt;div class="..."></code> will be 'div' <ul> <li><code>&lt;div class="..."></code> return
+	 * 'div'</li> <li><code>&lt;/p></code> returns 'p'</li> <li><code>&lt;!-- ... --></code> returns ''</li> </ul>
 	 * <p>
-	 * Reflects the type of HTML tag this tag represents
-	 * </p>
-	 * <p>
-	 * The type of an HTML tag is the first part of the tag, f.e. the type of
-	 * <code>&lt;div class="..."></code> will be 'div'
-	 * </p>
-	 * <ul>
-	 * <li><code>&lt;div class="..."></code> return 'div'</li>
-	 * <li><code>&lt;/p></code> returns 'p'</li>
-	 * <li><code>&lt;!-- ... --></code> returns ''</li>
-	 * </ul>
-	 * <p>
-	 * As from the examples above can be seen, comments to not return any short
-	 * tag!
-	 * </p>
-	 * 
+	 * As from the examples above can be seen, comments to not return any short tag!
+	 *
 	 * @return Returns the type of HTML tag this tag corresponds to
 	 */
 	public String getShortTag()
@@ -463,10 +385,7 @@ public class Tag extends Token
 	}
 
 	/**
-	 * <p>
-	 * Renames a tag to &lt;UNKNOWN> if it is an opening tag or to &lt;/UNKNOWN>
-	 * if it is a closing tag.
-	 * </p>
+	 * Renames a tag to &lt;UNKNOWN> if it is an opening tag or to &lt;/UNKNOWN> if it is a closing tag.
 	 */
 	public void setAsUndefined()
 	{
@@ -497,11 +416,6 @@ public class Tag extends Token
 			return false;
 		}
 
-		if (this.html.toString().equalsIgnoreCase(tag.html.toString()))
-		{
-			return true;
-		}
-
-		return false;
+		return this.html.toString().equalsIgnoreCase(tag.html.toString());
 	}
 }
