@@ -5,8 +5,8 @@ package at.rovo.parser;
  */
 public class LineBreak extends Token
 {
-	public LineBreak()
-	{
-		super("LINEBREAK");
-	}
+    public LineBreak()
+    {
+        super("LINEBREAK");
+    }
 }

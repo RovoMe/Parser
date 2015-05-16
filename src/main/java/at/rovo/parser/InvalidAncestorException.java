@@ -1,16 +1,17 @@
 package at.rovo.parser;
 
+@SuppressWarnings("unused")
 public class InvalidAncestorException extends Exception
 {
-	private static final long serialVersionUID = -2115791396790462161L;
+    private static final long serialVersionUID = -2115791396790462161L;
 
-	public InvalidAncestorException(String msg)
-	{
-		super(msg);
-	}
-	
-	public InvalidAncestorException(String msg, Throwable t)
-	{
-		super(msg, t);
-	}
+    public InvalidAncestorException(String msg)
+    {
+        super(msg);
+    }
+
+    public InvalidAncestorException(String msg, Throwable t)
+    {
+        super(msg, t);
+    }
 }

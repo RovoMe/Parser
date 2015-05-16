@@ -1,32 +1,32 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<artifactId>Parser</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+    <artifactId>Parser</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
 
-	<name>Parser</name>
-	<description>Simple HTML Parser Framework</description>
+    <name>Parser</name>
+    <description>Simple HTML Parser Framework</description>
 
-	<parent>
-		<groupId>at.rovo</groupId>
-		<artifactId>super-pom</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-	</parent>
-  
-	<dependencies>
-		<!-- Common -->
-		<dependency>
-			<groupId>at.rovo</groupId>
-			<artifactId>Common</artifactId>
-			<version>${commons.version}</version>
-		</dependency>
-		<!-- Porter's Stemmer Algorithm -->
-		<dependency>
-			<groupId>at.rovo</groupId>
-			<artifactId>PorterStemmer</artifactId>
-			<version>${stemmer.version}</version>
-		</dependency>
+    <parent>
+        <groupId>at.rovo</groupId>
+        <artifactId>super-pom</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <dependencies>
+        <!-- Common -->
+        <dependency>
+            <groupId>at.rovo</groupId>
+            <artifactId>Common</artifactId>
+            <version>${commons.version}</version>
+        </dependency>
+        <!-- Porter's Stemmer Algorithm -->
+        <dependency>
+            <groupId>at.rovo</groupId>
+            <artifactId>PorterStemmer</artifactId>
+            <version>${stemmer.version}</version>
+        </dependency>
         <!-- Log4J -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -36,20 +36,20 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
         </dependency>
-		<!-- Test dependency-->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+        <!-- Test dependency-->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>

@@ -10,57 +10,57 @@ http://logging.apache.org/log4j/2.x/manual/layouts.html
  -->
 <configuration status="warn" name="Parser" packages="at.rovo.parser">
 
-  <properties>
-  	<!-- Log file for checking Parser -->
-    <property name="parserFile">log/Parser.log</property>
-  </properties>
+    <properties>
+        <!-- Log file for checking Parser -->
+        <property name="parserFile">log/Parser.log</property>
+    </properties>
 
-  <appenders>
-  	<Console name="Console" target="SYSTEM_OUT">
-      <PatternLayout pattern="%d{HH:mm:ss} %p %C{1}.%M() - %m%n"/>
-      <!-- ThresholdFilter returns the onMatch result if the level in the LogEvent 
-      is the same or more specific than the configured level and the onMismatch 
-      value otherwise. For example, if the ThresholdFilter is configured with 
-      Level ERROR and the LogEvent contains Level DEBUG then the onMismatch 
-      value will be returned since ERROR events are more specific than DEBUG. 
-      The default Level is ERROR.  -->
-      <!-- accept INFO and WARN messages but don't show ERRORs on the system-output ... -->
-      <filters>
-	    <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="NEUTRAL"/>
-	    <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="NEUTRAL"/>
-	    <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
-      </filters>
-    </Console>
-    <!-- ... show them on the error-console! -->
-    <Console name="Error" target="SYSTEM_ERR">
-      <PatternLayout pattern="%d{HH:mm:ss} %p %C{1}.%M() - %m%n"/>
-      <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
-    </Console>
-    <File name="ParserFile" fileName="${parserFile}" append="true">
-      <PatternLayout pattern="%d{HH:mm:ss} %p %C{1}.%M() - %m%n"/>
-    </File>
-    <Async name="ErrorLog">
-      <AppenderRef ref="ParserFile"/>"
-    </Async>
-  </appenders>
-  
-  <loggers>	
-   	<logger name="at.rovo.parser.Parser" level="error" additivity="true">
-  	  <appender-ref ref="ParserFile"/>
-  	</logger>
-  	<logger name="at.rovo.parser.SimpleTreeParser" level="error" additivity="true">
-  	  <appender-ref ref="ParserFile"/>
-  	</logger>
-   	<logger name="at.rovo.parser.TSReCParser" level="error" additivity="true">
-  	  <appender-ref ref="ParserFile"/>
-  	</logger>
-  	<logger name="at.rovo.parser" level="info" additivity="true">
-      <appender-ref ref="ParserFile"/>
-  	  <appender-ref ref="Console"/>
-  	</logger>
-    <root level="error">
-      <appender-ref ref="Error"/>
-      <appender-ref ref="ErrorLog"/>
-    </root>
-  </loggers>
+    <appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss} %p %C{1}.%M() - %m%n"/>
+            <!-- ThresholdFilter returns the onMatch result if the level in the LogEvent
+            is the same or more specific than the configured level and the onMismatch
+            value otherwise. For example, if the ThresholdFilter is configured with
+            Level ERROR and the LogEvent contains Level DEBUG then the onMismatch
+            value will be returned since ERROR events are more specific than DEBUG.
+            The default Level is ERROR.  -->
+            <!-- accept INFO and WARN messages but don't show ERRORs on the system-output ... -->
+            <filters>
+                <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            </filters>
+        </Console>
+        <!-- ... show them on the error-console! -->
+        <Console name="Error" target="SYSTEM_ERR">
+            <PatternLayout pattern="%d{HH:mm:ss} %p %C{1}.%M() - %m%n"/>
+            <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+        </Console>
+        <File name="ParserFile" fileName="${parserFile}" append="true">
+            <PatternLayout pattern="%d{HH:mm:ss} %p %C{1}.%M() - %m%n"/>
+        </File>
+        <Async name="ErrorLog">
+            <AppenderRef ref="ParserFile"/>"
+        </Async>
+    </appenders>
+
+    <loggers>
+        <logger name="at.rovo.parser.Parser" level="error" additivity="true">
+            <appender-ref ref="ParserFile"/>
+        </logger>
+        <logger name="at.rovo.parser.SimpleTreeParser" level="error" additivity="true">
+            <appender-ref ref="ParserFile"/>
+        </logger>
+        <logger name="at.rovo.parser.TSReCParser" level="error" additivity="true">
+            <appender-ref ref="ParserFile"/>
+        </logger>
+        <logger name="at.rovo.parser" level="info" additivity="true">
+            <appender-ref ref="ParserFile"/>
+            <appender-ref ref="Console"/>
+        </logger>
+        <root level="error">
+            <appender-ref ref="Error"/>
+            <appender-ref ref="ErrorLog"/>
+        </root>
+    </loggers>
 </configuration>
