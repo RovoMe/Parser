@@ -64,6 +64,9 @@ http://logging.apache.org/log4j/2.x/manual/layouts.html
         <logger name="at.rovo.test" level="info" additivity="false">
             <appender-ref ref="Console"/>
         </logger>
+        <logger name="at.rovo.test.TemplateBasedExtraction" level="trace" additivity="false">
+            <appender-ref ref="Console"/>
+        </logger>
 
         <root level="error">
             <appender-ref ref="Error"/>
