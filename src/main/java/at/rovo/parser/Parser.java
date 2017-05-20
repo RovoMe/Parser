@@ -696,11 +696,11 @@ public class Parser
             token.length() > 1 &&
             // create a new tag if either there is no tag from the previous
             // iteration or it was no script tag
-            (this.tag == null || !this.tag.getHTML().startsWith("<script") ||
+            (this.tag == null || !this.tag.getHTML().toLowerCase().startsWith("<script") ||
              // create a script tag only if it is a complete tag
              // we might find a token that equals '<playlistArr.length;i++){'
              // don't treat is as a tag
-             this.tag.getHTML().startsWith("<script") && token.endsWith("</script>"))
+             this.tag.getHTML().toLowerCase().startsWith("<script") && token.toLowerCase().endsWith("</script>"))
             // only add a new tag if the previous tag is complete and there
             // is no compact in progress
             && this.tagFinished && this.compact == null)
@@ -713,7 +713,7 @@ public class Parser
             // together
             for (String compactTag : this.compactTags)
             {
-                if (this.tag.getShortTag().equals(compactTag))
+                if (this.tag.getShortTag().toLowerCase().equals(compactTag))
                 {
                     if (compactTag.equals("<!--") && !token.endsWith("-->"))
                     {
@@ -770,23 +770,23 @@ public class Parser
             {
                 // check if there are nested script declarations
                 // eg. <script ...>document.write(' <script...>...</script')
-                if (compact.equals("script"))
+                if (compact.toLowerCase().equals("script"))
                 {
                     // count the number of <script ...> tags
                     int scriptCount = 1;
-                    int scriptPos = this.tag.getHTML().indexOf("<script", 1);
+                    int scriptPos = this.tag.getHTML().toLowerCase().indexOf("<script", 1);
                     while (scriptPos != -1)
                     {
                         scriptCount++;
-                        scriptPos = this.tag.getHTML().indexOf("<script", scriptPos + 1);
+                        scriptPos = this.tag.getHTML().toLowerCase().indexOf("<script", scriptPos + 1);
                     }
                     // count the number of </script> tags - due to special encoding
                     int endCount = 0;
-                    int endPos = this.tag.getHTML().indexOf("/script>");
+                    int endPos = this.tag.getHTML().toLowerCase().indexOf("/script>");
                     while (endPos != -1)
                     {
                         endCount++;
-                        endPos = this.tag.getHTML().indexOf("/script>", endPos + 1);
+                        endPos = this.tag.getHTML().toLowerCase().indexOf("/script>", endPos + 1);
                     }
                     // check if the number of opening tags is less or equal to
                     // the number of closing tags - sometimes an opening script
