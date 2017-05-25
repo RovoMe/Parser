@@ -3,15 +3,16 @@ package at.rovo.parser;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("unused")
 public class ParsingMetaData
 {
-    private final static Logger LOG = LogManager.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private boolean isTitle = false;
     private String title = "";
@@ -164,79 +165,22 @@ public class ParsingMetaData
         if (isTitle)
         {
             LOG.trace("Adding title: '{}'", word);
-            if (foundLevel > 0 && foundLevel + 1 == word.getLevel() || foundLevel < 0)
-            {
-                if (!combineWords)
-                {
-                    title += " " + word.getText();
-                }
-                else
-                {
-                    title = word.getText();
-                }
-            }
-            else if (foundLevel > 0)
-            {
-                this.clear();
-            }
+            setSimpleWord(word, title, combineWords, foundLevel).ifPresent((String value) -> title = value);
         }
         if (isDate)
         {
             LOG.trace("Adding date: '{}'", word);
-            if (foundLevel > 0 && foundLevel + 1 == word.getLevel() || foundLevel < 0)
-            {
-                if (!combineWords)
-                {
-                    date += " " + word.getText();
-                }
-                else
-                {
-                    date = word.getText();
-                }
-            }
-            else if (foundLevel > 0)
-            {
-                this.clear();
-            }
+            setSimpleWord(word, date, combineWords, foundLevel).ifPresent((String value) -> date = value);
         }
         if (isAuthorName)
         {
             LOG.trace("Adding authorName: '{}'", word);
-            if (foundLevel > 0 && foundLevel + 1 == word.getLevel() || foundLevel < 0)
-            {
-                if (!combineWords)
-                {
-                    authorName.set(authorName.size() - 1,
-                                   (authorName.get(authorName.size() - 1) + " " + word.getText()).trim());
-                }
-                else
-                {
-                    authorName.set(authors.size() - 1, word.getText());
-                }
-            }
-            else if (foundLevel > 0)
-            {
-                this.clear();
-            }
+            setWord(word, authorName, combineWords, foundLevel);
         }
         if (isAuthor)
         {
             LOG.trace("Adding author: '{}'", word);
-            if (foundLevel > 0 && foundLevel + 1 == word.getLevel() || foundLevel < 0)
-            {
-                if (!combineWords)
-                {
-                    authors.set(authors.size() - 1, (authors.get(authors.size() - 1) + " " + word.getText()).trim());
-                }
-                else
-                {
-                    authors.set(authors.size() - 1, word.getText());
-                }
-            }
-            else if (foundLevel > 0)
-            {
-                this.clear();
-            }
+            setWord(word, authors, combineWords, foundLevel);
         }
         if (isByline)
         {
@@ -249,6 +193,49 @@ public class ParsingMetaData
             {
                 this.clear();
             }
+        }
+    }
+
+    private Optional<String> setSimpleWord(Word word, String currentValue, boolean combineWords, int foundLevel)
+    {
+        Optional<String> ret = Optional.empty();
+        if (foundLevel > 0 && foundLevel + 1 == word.getLevel() || foundLevel < 0)
+        {
+            if (!combineWords)
+            {
+                currentValue += " " + word.getText();
+            }
+            else
+            {
+                currentValue = word.getText();
+            }
+            ret = Optional.of(currentValue);
+        }
+        else if (foundLevel > 0)
+        {
+            this.clear();
+            ret = Optional.empty();
+        }
+
+        return ret;
+    }
+
+    private void setWord(Word word, List<String> words, boolean combineWords, int foundLevel)
+    {
+        if (foundLevel > 0 && foundLevel + 1 == word.getLevel() || foundLevel < 0)
+        {
+            if (!combineWords)
+            {
+                words.set(words.size() - 1, (words.get(words.size() - 1) + " " + word.getText()).trim());
+            }
+            else
+            {
+                words.set(words.size() - 1, word.getText());
+            }
+        }
+        else if (foundLevel > 0)
+        {
+            this.clear();
         }
     }
 

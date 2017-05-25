@@ -11,6 +11,7 @@ import at.rovo.parser.Token;
 import at.rovo.parser.Word;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -18,15 +19,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ParserTest
 {
-    protected static Logger logger = LogManager.getLogger(ParserTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private String html = "";
 
@@ -88,7 +89,7 @@ public class ParserTest
         Assert.assertEquals("<a>", tokens.get(60).getName());
         Assert.assertEquals(Tag.class, tokens.get(60).getClass());
 
-        logger.debug("\n{}", tokens);
+        LOG.debug("\n{}", tokens);
     }
 
     @Test
@@ -167,7 +168,7 @@ public class ParserTest
         Assert.assertEquals("Test Page", tokens.get(4).getText() + " " + tokens.get(5).getText());
 
 
-        logger.debug("\n{}", ParserUtil.niceHTMLFormat(tokens.get(0), parser, true));
+        LOG.debug("\n{}", ParserUtil.niceHTMLFormat(tokens.get(0), parser, true));
 
         // remove form elements
 
@@ -183,7 +184,7 @@ public class ParserTest
         Assert.assertNull(tokens.get(3).getText());
         Assert.assertEquals("Test Page", tokens.get(4).getText() + " " + tokens.get(5).getText());
 
-        logger.debug("\n{}", ParserUtil.niceHTMLFormat(tokens.get(0), parser, true));
+        LOG.debug("\n{}", ParserUtil.niceHTMLFormat(tokens.get(0), parser, true));
 
         // remove form elements and combine words
 
@@ -200,7 +201,7 @@ public class ParserTest
         Assert.assertNull(tokens.get(3).getText());
         Assert.assertEquals("Test Page", tokens.get(4).getText());
 
-        logger.debug("\n{}", ParserUtil.niceHTMLFormat(tokens.get(0), parser, true));
+        LOG.debug("\n{}", ParserUtil.niceHTMLFormat(tokens.get(0), parser, true));
     }
 
     @Test
@@ -271,7 +272,7 @@ public class ParserTest
         Assert.assertEquals("to upgrade your browser in order to comment.", divTag.getSubElements().get(4).getName());
         Assert.assertEquals(Word.class, divTag.getSubElements().get(4).getClass());
 
-        logger.debug("\n{}", ParserUtil.niceTSReCFormat(tokens));
+        LOG.debug("\n{}", ParserUtil.niceTSReCFormat(tokens));
     }
 
     @Test
@@ -348,6 +349,6 @@ public class ParserTest
         Assert.assertEquals(1, pTag.getChildren().length);
         Assert.assertEquals("Test Page Content", pTag.getChildren()[0].getText());
 
-        logger.debug("\n{}", ParserUtil.niceHTMLFormat(tokens.get(0), parser, false));
+        LOG.debug("\n{}", ParserUtil.niceHTMLFormat(tokens.get(0), parser, false));
     }
 }

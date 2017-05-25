@@ -5,6 +5,7 @@ import at.rovo.parser.Parser;
 import at.rovo.parser.Token;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -12,14 +13,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HTMLParserTest
 {
-    private final static Logger LOG = LogManager.getLogger(HTMLParserTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private String html = "";
 
@@ -51,7 +52,7 @@ public class HTMLParserTest
         ParseResult parse = parser.tokenize(this.html, false);
         List<Token> tokens = parse.getParsedTokens();
 
-        LOG.info(tokens);
+        tokens.forEach((Token token) -> LOG.info(token.toString()));
         LOG.info("Byline: " + parse.getByline());
         LOG.info("Title: " + parse.getTitle());
         LOG.info("Date: " + parse.getPublishDate());
@@ -60,19 +61,21 @@ public class HTMLParserTest
         LOG.info("Number of Words: " + parse.getNumWords());
     }
 
-    //	@Test
-    //	public void test2()
-    //	{
-    //		Parser parser = new Parser();
-    //		ParseResult parse = parser.tokenizeURL("http://latimesblogs.latimes.com/world_now/2012/08/norway-killer-could-have-been-stopped-sooner-report.html", false);
-    //		List<Token> tokens = parse.getParsedTokens();
-    //
-    //		System.out.println(tokens);
-    //		System.out.println("Byline: "+parse.getByline());
-    //		System.out.println("Title: "+parse.getTitle());
-    //		System.out.println("Date: "+parse.getPublishDate());
-    //		System.out.println("Authors: "+parse.getAuthors());
-    //		System.out.println("Number of Tags: "+parse.getNumTags());
-    //		System.out.println("Number of Words: "+parse.getNumWords());
-    //	}
+//    @Test
+//    public void test2()
+//    {
+//        Parser parser = new Parser();
+//        ParseResult parse = parser.tokenizeURL(
+//                "http://latimesblogs.latimes.com/world_now/2012/08/norway-killer-could-have-been-stopped-sooner-report.html",
+//                false);
+//        List<Token> tokens = parse.getParsedTokens();
+//
+//        System.out.println(tokens);
+//        System.out.println("Byline: " + parse.getByline());
+//        System.out.println("Title: " + parse.getTitle());
+//        System.out.println("Date: " + parse.getPublishDate());
+//        System.out.println("Authors: " + parse.getAuthors());
+//        System.out.println("Number of Tags: " + parse.getNumTags());
+//        System.out.println("Number of Words: " + parse.getNumWords());
+//    }
 }

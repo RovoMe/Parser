@@ -18,7 +18,7 @@
         <!-- Common -->
         <dependency>
             <groupId>at.rovo</groupId>
-            <artifactId>Common</artifactId>
+            <artifactId>commons</artifactId>
             <version>${commons.version}</version>
         </dependency>
         <!-- Porter's Stemmer Algorithm -->
@@ -27,14 +27,14 @@
             <artifactId>PorterStemmer</artifactId>
             <version>${stemmer.version}</version>
         </dependency>
-        <!-- Log4J -->
+        <!-- Logging -->
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
         <!-- Test dependency-->
         <dependency>

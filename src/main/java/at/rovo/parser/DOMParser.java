@@ -3,8 +3,8 @@ package at.rovo.parser;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Stack;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Creates a Document Object Model (DOM) like structure of the parsed HTML tokens from the provided HTML page.
@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
 @SuppressWarnings("unused")
 public class DOMParser extends SimpleTreeParser
 {
-    protected static Logger LOG = LogManager.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public DOMParser()
     {
@@ -191,7 +191,6 @@ public class DOMParser extends SimpleTreeParser
                 }
                 catch (InvalidAncestorException iaEx)
                 {
-                    //					LOG.catching(iaEx);
                     LOG.warn(iaEx.getLocalizedMessage());
                 }
             }

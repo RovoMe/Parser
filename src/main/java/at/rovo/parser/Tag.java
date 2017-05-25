@@ -1,11 +1,12 @@
 package at.rovo.parser;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents a HTML or XML tag which starts with a '&lt;' character and ends with a '>' character.
@@ -19,7 +20,8 @@ import org.apache.logging.log4j.Logger;
 public class Tag extends Token
 {
     /** The logger of this class **/
-    protected static Logger logger = LogManager.getLogger(Tag.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
     /**
      * Used by TSReC parser. Will contain list of appended tokens that will appear as sub-elements of this tokens. This
      * are not exactly children per se as TSReC will append Words and Tags that do not break the text flow.

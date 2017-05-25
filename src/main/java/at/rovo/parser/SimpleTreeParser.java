@@ -4,8 +4,8 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The <em>SimpleTreeParser</em> creates a simple tree representation of the parsed HTML tree by adding opening and
@@ -27,7 +27,7 @@ import org.apache.logging.log4j.Logger;
 @SuppressWarnings("unused")
 public class SimpleTreeParser extends Parser
 {
-    protected static Logger LOG = LogManager.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     /**
      * Tags contained in this list will ignore parenting. This means that tags following one of these tags will be on
@@ -244,7 +244,7 @@ public class SimpleTreeParser extends Parser
                 }
                 catch (InvalidAncestorException iaEx)
                 {
-                    LOG.catching(iaEx);
+                    LOG.error(iaEx.getLocalizedMessage(), iaEx);
                 }
             }
         }

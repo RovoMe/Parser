@@ -10,16 +10,17 @@ import at.rovo.parser.Word;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.invoke.MethodHandles;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({ "ConstantConditions", "unused" })
 public class DOMText
 {
-    private final static Logger logger = LogManager.getLogger(DOMText.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Test
     public void testDOMGeneration()
@@ -56,15 +57,15 @@ public class DOMText
         {
             if (node.getChildren() != null && node.getChildren().length > 0)
             {
-                logger.debug("No: {}", node.getNo());
-                logger.debug("Name: {}", node.getName());
-                logger.debug("Parent: {}", node.getParentNo());
+                LOG.debug("No: {}", node.getNo());
+                LOG.debug("Name: {}", node.getName());
+                LOG.debug("Parent: {}", node.getParentNo());
 
                 for (Token n : node.getChildren())
                 {
-                    logger.debug("child of {}: {} {}", node.getName(), n.getNo(), n.getName());
+                    LOG.debug("child of {}: {} {}", node.getName(), n.getNo(), n.getName());
                 }
-                logger.debug("");
+                LOG.debug("");
             }
         }
 
@@ -161,7 +162,7 @@ public class DOMText
 
     static void writeFile(String file, String content) throws IOException
     {
-        logger.debug("Writing file '{}'", file);
+        LOG.debug("Writing file '{}'", file);
         PrintWriter out = new PrintWriter(new FileWriter(file));
 
         // Write text to file
@@ -175,6 +176,6 @@ public class DOMText
         {
             e.printStackTrace();
         }
-        logger.debug(" ... DONE");
+        LOG.debug(" ... DONE");
     }
 }

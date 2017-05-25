@@ -5,9 +5,8 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A parser reads a HTML page or its text representation as {@link String} into memory and splits the text into {@link
@@ -29,7 +28,7 @@ import org.apache.logging.log4j.Logger;
 public class Parser
 {
     /** The logger of this class **/
-    private static Logger LOG = LogManager.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     /**
      * Specifies if words inside a tag should be combined into a single word-segment
@@ -905,14 +904,13 @@ public class Parser
 
                     newTag.setIndex(this.tagPos++);
 
-                    LOG.debug("\tadded Tag: '{}'", tag);
+                    LOG.debug("added Tag: '{}'", tag);
 
                     this.metaData.checkTag(newTag);
                 }
                 catch (InvalidAncestorException iaEx)
                 {
-                    LOG.error("No valid anchestor found for tag: '{}'", tag);
-                    LOG.catching(Level.ERROR, iaEx);
+                    LOG.error("No valid anchestor found for tag: '" + tag + "'", iaEx);
                 }
             }
         }
